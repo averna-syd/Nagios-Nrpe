@@ -1,0 +1,9 @@
+help: 0
+logging: 1
+
+path:
+  yum: /usr/bin/yum
+  bash: /bin/bash
+
+init:
+  puppet: /etc/init.d/puppet

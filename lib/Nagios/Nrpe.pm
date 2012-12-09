@@ -1,6 +1,7 @@
 package Nagios::Nrpe;
 
 use Carp;
+use YAML;
 use Moo;
 with('Nagios::Nrpe::Check::Hostsfile');
 
@@ -96,6 +97,14 @@ sub exit
 };
 
 
+sub load_config
+{
+    my $self = shift;
+
+    $self->config( YAML::LoadFile('config.yaml') );
+};
+
+
 sub default_verbose
 {
     # Usage: Sets default verbose flag
@@ -184,6 +193,13 @@ has exit_unknown =>
                      die "$_[0] is not a number!" if ( $_[0] !~ m/^\d+$/ );
                    },
     default => \&nagios_unknown,
+);
+
+
+has config =>
+(
+    is  => 'rw',
+    default => \&load_config,
 );
 
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 
-use warnings;
-use strict;
-use lib './lib';
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
 use Data::Dumper;
 use Nagios::Nrpe;
 
