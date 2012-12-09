@@ -1,0 +1,11 @@
+LICENSE
+MANIFEST
+META.yml
+Makefile.PL
+README
+check.pl
+dist.ini
+lib/Nagios/Nrpe.pm
+lib/Nagios/Nrpe/Check/Hostsfile.pm
+t/000-load.t
+t/001-methods.t

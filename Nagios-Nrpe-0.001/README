@@ -1,0 +1,16 @@
+
+
+This archive contains the distribution Nagios-Nrpe,
+version 0.001:
+
+  A small framework for custom Nagios NRPE client side checks. 
+The main objective of these modules is to remove the repetitive boilerplate
+required when making client side NRPE checks without hopefully adding in too
+many dependencies.
+
+This software is copyright (c) 2012 by Sarah Fuller.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+
