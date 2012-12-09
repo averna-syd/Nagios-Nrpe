@@ -4,6 +4,23 @@ use Carp;
 use Moo;
 with('Nagios::Nrpe::Check::Hostsfile');
 
+=head1 NAME
+
+Nagios::Nrpe - A small framework for custom Nagios NRPE client side checks. 
+The main objective of these modules is to remove the repetitive boilerplate
+required when making client side NRPE checks without hopefully adding in too
+many dependencies.
+
+=head1 SYNOPSIS
+
+Allows the creation of custom Nagios client side NRPE checks.
+
+Example usage:
+
+    use Nagios::Nrpe;
+
+    my $check = Nagios::Nrpe->new();
+=cut
 
 
 sub nagios_ok
@@ -191,45 +208,3 @@ has help =>
 
 
 1;
-
-__END__
-
-=pod
-
-=head1 NAME
-
-Nagios::Nrpe
-
-=head1 VERSION
-
-version 0.001
-
-=head1 SYNOPSIS
-
-Allows the creation of custom Nagios client side NRPE checks.
-
-Example usage:
-
-    use Nagios::Nrpe;
-
-    my $check = Nagios::Nrpe->new();
-
-=head1 NAME
-
-Nagios::Nrpe - A small framework for custom Nagios NRPE client side checks. 
-The main objective of these modules is to remove the repetitive boilerplate
-required when making client side NRPE checks without hopefully adding in too
-many dependencies.
-
-=head1 AUTHOR
-
-Sarah Fuller <sarah@averna.id.au>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2012 by Sarah Fuller.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
