@@ -3,6 +3,7 @@ package Nagios::Nrpe;
 use Carp;
 use YAML;
 use Moo;
+use Log::Log4perl;
 with('Nagios::Nrpe::Check::Hostsfile');
 
 =head1 NAME
@@ -105,6 +106,28 @@ sub load_config
 };
 
 
+sub load_logger
+{
+    my $self     = shift;
+    my $log_file = $self->config->{log_file};
+    my $conf = 
+    "
+    log4perl.rootLogger = DEBUG, file
+    log4perl.appender.file = Log::Log4perl::Appender::File
+    log4perl.appender.file.filename = $log_file
+    log4perl.appender.file.mode = append
+    log4perl.appender.file.layout = PatternLayout
+    log4perl.appender.file.layout.ConversionPattern = %d %p> %F{1}:%L %M - %m%n
+    ";
+
+    Log::Log4perl->init( \$conf );
+
+    my $logger = Log::Log4perl->get_logger();
+
+    $self->logger( $logger );
+};
+
+
 sub default_verbose
 {
     # Usage: Sets default verbose flag
@@ -200,6 +223,13 @@ has config =>
 (
     is  => 'rw',
     default => \&load_config,
+);
+
+
+has logger =>
+(
+    is => 'rw',
+    default => \&load_logger,
 );
 
 

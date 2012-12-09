@@ -1,8 +1,14 @@
+# enable or disable logging
 logging: 1
+log_file: perl.nrpe.log
 
+# set environment paths needed by checks
 path:
-  yum: /usr/bin/yum
+  env: /bin/env
   bash: /bin/bash
+  yum: /usr/bin/yum
+  sudo: /usr/bin/sudo
 
+# set paths to init scripts
 init:
   puppet: /etc/init.d/puppet
