@@ -9,7 +9,11 @@ with('Nagios::Nrpe::Check::Hostsfile');
 
 =head1 NAME
 
-Nagios::Nrpe - A small framework for custom Nagios NRPE client side checks. 
+Nagios::Nrpe
+
+=head 1 ABSTRACT
+
+A small framework for custom Nagios NRPE client side checks. 
 The main objective of these modules is to remove the repetitive boilerplate
 required when making client side NRPE checks without hopefully adding in too
 many dependencies.
@@ -23,6 +27,7 @@ Example usage:
     use Nagios::Nrpe;
 
     my $check = Nagios::Nrpe->new();
+
 =cut
 
 
@@ -161,7 +166,7 @@ has exit_code =>
 (
     is  => 'rw',
     isa => sub {
-                 die "$_[0] is not a number!" if ( $_[0] !~ m/^\d+$/ );
+                 die "$_[0]: not a number" if ( $_[0] !~ m/^\d+$/ );
                },
 );
 
@@ -170,7 +175,7 @@ has exit_message =>
 (
     is  => 'rw',
     isa => sub {
-                 die "$_[0] exit message required!" if ( $_[0] !~ m/\w+/ );
+                 die "$_[0]: exit message required" if ( $_[0] !~ m/\w+/ );
                },
 );
 
@@ -179,7 +184,7 @@ has exit_stats =>
 (
     is  => 'rw',
     isa => sub {
-                 die "$_[0] exit stats required!" if ( $_[0] !~ m/\w+/ );
+                 die "$_[0]: stats empty" if ( $_[0] !~ m/\w+/ );
                },
 );
 
@@ -188,7 +193,7 @@ has exit_ok =>
 (
     is      => 'rw',
     isa     => sub {
-                     die "$_[0] is not a number!" if ( $_[0] !~ m/^\d+$/ );
+                     die "$_[0]: not a number" if ( $_[0] !~ m/^\d+$/ );
                    },
     default => \&nagios_ok,
 );
@@ -198,7 +203,7 @@ has exit_warning =>
 (
     is      => 'rw',
     isa     => sub {
-                     die "$_[0] is not a number!" if ( $_[0] !~ m/^\d+$/ );
+                     die "$_[0]: not a number" if ( $_[0] !~ m/^\d+$/ );
                    },
     default => \&nagios_warning,
 );
@@ -208,7 +213,7 @@ has exit_critical =>
 (
     is      => 'rw',
     isa     => sub {
-                     die "$_[0] is not a number!" if ( $_[0] !~ m/^\d+$/ );
+                     die "$_[0]: not a number" if ( $_[0] !~ m/^\d+$/ );
                    },
     default => \&nagios_critical,
 );
@@ -218,7 +223,7 @@ has exit_unknown =>
 (
     is      => 'rw',
     isa     => sub {
-                     die "$_[0] is not a number!" if ( $_[0] !~ m/^\d+$/ );
+                     die "$_[0]: not a number" if ( $_[0] !~ m/^\d+$/ );
                    },
     default => \&nagios_unknown,
 );
@@ -226,7 +231,10 @@ has exit_unknown =>
 
 has config =>
 (
-    is  => 'rw',
+    is      => 'rw',
+    isa     => sub {
+                     die "$_[0]: not a hashref" if ( ref( $_[0] ) ne 'HASH');
+                   },
     default => \&load_config,
 );
 
@@ -235,6 +243,10 @@ has log =>
 (
     is      => 'rw',
     lazy    => 1,
+    isa     => sub {
+                     die "$_[0]: not a log4perl class" if ( !
+                     $_[0]->isa('Log::Log4perl::Logger') );
+                   },
     default => \&load_logger,
 );
 
@@ -243,7 +255,7 @@ has verbose =>
 (
     is      => 'rw',
     isa     => sub {
-                 die "$_[0] is not a boolean" if ( $_[0] !~ m/^(0|1)$/ );
+                 die "$_[0]: not a boolean" if ( $_[0] !~ m/^(0|1)$/ );
                },
     default => \&default_verbose,
 );
@@ -253,7 +265,7 @@ has help =>
 (
     is      => 'rw',
     isa     => sub {
-                     die "$_[0] is not a boolean" if ( $_[0] !~ m/^(0|1)$/ );
+                     die "$_[0]: not a boolean" if ( $_[0] !~ m/^(0|1)$/ );
                },
     default => \&default_help,
 );

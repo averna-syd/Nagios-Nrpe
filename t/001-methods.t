@@ -1,12 +1,12 @@
-use Test::More tests => 7;
+use Test::More tests => 11;
 
 BEGIN { use_ok( 'Nagios::Nrpe' ); }
 
 my $object = Nagios::Nrpe->new ();
 isa_ok ($object, 'Nagios::Nrpe');
 
-$stdout=qx{ perl -Ilib -e "use Nagios::Nrpe; Nagios::Nrpe->new( exit_code =>
-Nagios::Nrpe->new->exit_ok )->exit;" };
+$stdout=qx{ perl -Ilib -e "use Nagios::Nrpe; use Nagios::Nrpe; Nagios::Nrpe->new(
+exit_code => Nagios::Nrpe->new->exit_ok )->exit; " };
 $exit=$? >> 8;
 is ($exit, '0', "Ok exit");
 
@@ -28,4 +28,20 @@ is ($exit, '3', "Unknown exit");
 $stdout=qx{ perl -Ilib -e "use Nagios::Nrpe; Nagios::Nrpe->new()->exit;" };
 $exit=$? >> 8;
 is ($exit, '3', "Default exit");
+
+$stdout=qx{  perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new( 
+)->verbose;" };
+is ($stdout, '0', "Default verbose");
+
+$stdout=qx{  perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new( 
+ verbose => 1 )->verbose;" };
+is ($stdout, '1', "Enable verbose");
+
+$stdout=qx{  perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new( 
+)->help;" };
+is ($stdout, '0', "Default help");
+
+$stdout=qx{  perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new( 
+ help => 1 )->help;" };
+is ($stdout, '1', "Enable help");
 
