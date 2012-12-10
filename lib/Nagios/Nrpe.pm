@@ -88,14 +88,14 @@ Example usage:
     # Pass human readable message and then nagios stats (if any).
     # This call will exit the program with the desired exit code.
 
-    $nrpe->exit_ok( 'Looks good', 'stat1=123;stat2=321' );
+    $nrpe->exit_ok( 'Looks good', 'stat1=123;stat2=321;' );
 
 
     # Exit WARNING
     # Pass human readable message and then nagios stats (if any).
     # This call will exit the program with the desired exit code.
 
-    $nrpe->exit_warning( 'Looks interesting', 'stat1=123;stat2=321' );
+    $nrpe->exit_warning( 'Looks interesting', 'stat1=123;stat2=321;' );
 
 
     # Exit CRITICAL
@@ -103,7 +103,7 @@ Example usage:
     # This call will exit the program with the desired exit code.
 
     $nrpe->exit_critical( 'oh god, oh god, we're all going to die',
-                         'stat1=123;stat2=321' );
+                         'stat1=123;stat2=321;' );
 
 
     # Exit UNKNOWN
