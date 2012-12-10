@@ -6,11 +6,11 @@ use lib "$FindBin::Bin/../lib";
 use Data::Dumper;
 use Nagios::Nrpe;
 
-my $check = Nagios::Nrpe->new( );
-
+my $nrpe = Nagios::Nrpe->new( verbose => 1 );
+$nrpe->log->info('stuff');
 #$check->yum;
 
-print Dumper ( $check );
+#print Dumper ( $check );
 #print $check->command->{verbose} . "\n";
 
 #$check->exit_message('Something');

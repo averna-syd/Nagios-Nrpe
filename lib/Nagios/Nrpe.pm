@@ -1,9 +1,10 @@
 package Nagios::Nrpe;
 
+use Moo;
 use Carp;
 use YAML;
-use Moo;
 use Log::Log4perl;
+use Log::Dispatch::Syslog;
 with('Nagios::Nrpe::Check::Hostsfile');
 
 =head1 NAME
@@ -100,6 +101,10 @@ sub exit
 
 sub load_config
 {
+    # Usage: Loads the config file.
+    # Params: $self
+    # Returns: $self->config
+
     my $self = shift;
 
     $self->config( YAML::LoadFile('config.yaml') );
@@ -108,23 +113,23 @@ sub load_config
 
 sub load_logger
 {
-    my $self     = shift;
-    my $log_file = $self->config->{log_file};
-    my $conf = 
-    "
-    log4perl.rootLogger = DEBUG, file
-    log4perl.appender.file = Log::Log4perl::Appender::File
-    log4perl.appender.file.filename = $log_file
-    log4perl.appender.file.mode = append
-    log4perl.appender.file.layout = PatternLayout
-    log4perl.appender.file.layout.ConversionPattern = %d %p> %F{1}:%L %M - %m%n
-    ";
+    # Usage: Inits the logger.
+    # Params: $self
+    # Returns: $self->log
 
-    Log::Log4perl->init( \$conf );
+    my $self    = shift;
+
+    my $config  = ( $self->verbose ) ?
+                  $self->config->{log4perl}->{verbose}
+                  : ( ! $self->config->{log} ) ?
+                  $self->config->{log4perl}->{disabled}
+                  : $self->config->{log4perl}->{default};
+
+    Log::Log4perl->init( \$config );
 
     my $logger = Log::Log4perl->get_logger();
 
-    $self->logger( $logger );
+    $self->log( $logger );
 };
 
 
@@ -226,9 +231,10 @@ has config =>
 );
 
 
-has logger =>
+has log =>
 (
-    is => 'rw',
+    is      => 'rw',
+    lazy    => 1,
     default => \&load_logger,
 );
 

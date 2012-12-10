@@ -1,6 +1,36 @@
 # enable or disable logging
-logging: 1
-log_file: perl.nrpe.log
+log: 1
+
+# logging settings
+log4perl:
+# default logging, log to syslog only.
+  default: |
+    log4perl.rootLogger                = DEBUG, SYSLOG
+    log4perl.appender.SYSLOG           = Log::Dispatch::Syslog
+    log4perl.appender.SYSLOG.min_level = debug
+    log4perl.appender.SYSLOG.ident     = Nagios::Nrpe
+    log4perl.appender.SYSLOG.facility  = daemon
+    log4perl.appender.SYSLOG.layout    = Log::Log4perl::Layout::SimpleLayout
+# verbose logging, log to syslog and stdout.
+  verbose: |
+    log4perl.rootLogger                = DEBUG, SYSLOG, SCREEN
+    log4perl.appender.SCREEN         = Log::Log4perl::Appender::Screen
+    log4perl.appender.SCREEN.stderr  = 0
+    log4perl.appender.SCREEN.layout  = Log::Log4perl::Layout::PatternLayout
+    log4perl.appender.SCREEN.layout.ConversionPattern = %d %p %m %n
+    log4perl.appender.SYSLOG           = Log::Dispatch::Syslog
+    log4perl.appender.SYSLOG.min_level = debug
+    log4perl.appender.SYSLOG.ident     = Nagios::Nrpe
+    log4perl.appender.SYSLOG.facility  = daemon
+    log4perl.appender.SYSLOG.layout    = Log::Log4perl::Layout::SimpleLayout
+# disabled logging (/dev/null), effectively killing all logging.
+  disabled: |
+    log4perl.rootLogger              = DEBUG, LOG1
+    log4perl.appender.LOG1           = Log::Log4perl::Appender::File
+    log4perl.appender.LOG1.filename  = /dev/null
+    log4perl.appender.LOG1.mode      = append
+    log4perl.appender.LOG1.layout    = Log::Log4perl::Layout::PatternLayout
+    log4perl.appender.LOG1.layout.ConversionPattern = %d %p %m %n
 
 # set environment paths needed by checks
 path:
