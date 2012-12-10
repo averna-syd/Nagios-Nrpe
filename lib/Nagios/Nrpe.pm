@@ -134,20 +134,20 @@ sub exit
     # Returns: exits program.
 
     my $self = shift;
-    
-    chomp ( my $exit_code    = ( defined $self->exit_code ) 
+
+    chomp ( my $code    = ( defined $self->exit_code ) 
             ? $self->exit_code : $self->unknown );
 
-    chomp ( my $exit_message = ( defined $self->exit_message )
+    chomp ( my $message = ( defined $self->exit_message )
             ? $self->exit_message : 'Unknown' );
 
-    chomp ( my $exit_stats   = ( defined $self->exit_stats ) 
+    chomp ( my $stats   = ( defined $self->exit_stats ) 
             ? $self->exit_stats : '' ); 
 
 
-    print "$exit_message|$exit_stats\n";
+    print "$message|$stats\n";
 
-    exit ( $exit_code );
+    exit ( $code );
 };
 
 
@@ -189,13 +189,14 @@ sub error
 {
     # Usage: Standard error message handling call.
     # Params: $self
+    #         $message - message string for output.
     # Returns: exits program.
 
     my $self = shift;
-    chomp ( my $msg  = shift // 'Unknown error' );
+    chomp ( my $message = shift // 'Unknown error' );
 
-    $self->log->error( $msg );
-    $self->exit_message( $msg );
+    $self->log->error( $message );
+    $self->exit_message( $message );
     $self->exit_code( $self->critical );
     $self->exit;
 };
@@ -205,12 +206,13 @@ sub info
 {
     # Usage: Standard info message handling call.
     # Params: $self
+    #         $message - message string for output.
     # Returns: nothing.
 
     my $self = shift;
-    chomp ( my $msg  = shift // 'Unknown info' );
+    chomp ( my $message = shift // 'Unknown info' );
     
-    $self->log->info( $msg );
+    $self->log->info( $message );
 };
 
 
@@ -218,12 +220,13 @@ sub debug
 {
     # Usage: Standard debug message handling call.
     # Params: $self
+    #         $message - message string for output.
     # Returns: nothing.
 
     my $self = shift;
-    chomp ( my $msg  = shift // 'Unknown debug' );
+    chomp ( my $message = shift // 'Unknown debug' );
 
-    $self->log->debug( $msg );
+    $self->log->debug( $message );
 };
 
 
