@@ -3,6 +3,7 @@ package Nagios::Nrpe;
 use Moo;
 use Carp;
 use YAML;
+use FindBin;
 use Log::Log4perl;
 use Log::Dispatch::Syslog;
 
@@ -67,7 +68,7 @@ sub exit_ok
     my $message = shift // 'Unknown';
     my $stats   = shift // '';
 
-    $self->exit_code( 0 );
+    $self->exit_code( $self->ok );
     $self->exit_message( $message );
     $self->exit_stats( $stats );
     $self->exit;
@@ -84,7 +85,7 @@ sub exit_warning
     my $message = shift // 'Unknown';
     my $stats   = shift // '';
 
-    $self->exit_code( 1 );
+    $self->exit_code( $self->warning );
     $self->exit_message( $message );
     $self->exit_stats( $stats );
     $self->exit;
@@ -101,24 +102,24 @@ sub exit_critical
     my $message = shift // 'Unknown';
     my $stats   = shift // '';
 
-    $self->exit_code( 2 );
+    $self->exit_code( $self->critical );
     $self->exit_message( $message );
     $self->exit_stats( $stats );
     $self->exit;
 };
 
 
-sub nagios_unknown
+sub exit_unknown
 {
     # Usage: Sets default unknown exit.
     # Params: $self
-    # Returns: Sets up "critical" exit and calls exit.
+    # Returns: Sets up "unknown" exit and calls exit.
 
     my $self = shift;
     my $message = shift // 'Unknown';
     my $stats   = shift // '';
 
-    $self->exit_code( 3 );
+    $self->exit_code( $self->unknown );
     $self->exit_message( $message );
     $self->exit_stats( $stats );
     $self->exit;
@@ -132,10 +133,10 @@ sub exit
     # Params: $self
     # Returns: exits program.
 
-    my $self         = shift;
+    my $self = shift;
     
     chomp ( my $exit_code    = ( defined $self->exit_code ) 
-            ? $self->exit_code : $self->exit_unknown );
+            ? $self->exit_code : $self->unknown );
 
     chomp ( my $exit_message = ( defined $self->exit_message )
             ? $self->exit_message : 'Unknown' );
@@ -154,11 +155,11 @@ sub load_config
 {
     # Usage: Loads the config file.
     # Params: $self
-    # Returns: $self->config
+    # Returns: hashref
 
     my $self = shift;
 
-    $self->config( YAML::LoadFile('config.yaml') );
+    return YAML::LoadFile( $self->config_file );
 };
 
 
@@ -166,7 +167,7 @@ sub load_logger
 {
     # Usage: Inits the logger.
     # Params: $self
-    # Returns: $self->log
+    # Returns: blessed ref
 
     my $self    = shift;
 
@@ -180,7 +181,7 @@ sub load_logger
 
     my $logger = Log::Log4perl->get_logger();
 
-    $self->log( $logger );
+    return $logger;
 };
 
 
@@ -195,7 +196,7 @@ sub error
 
     $self->log->error( $msg );
     $self->exit_message( $msg );
-    $self->exit_code( $self->exit_critical );
+    $self->exit_code( $self->critical );
     $self->exit;
 };
 
@@ -226,35 +227,51 @@ sub debug
 };
 
 
-sub default_verbose
-{
-    # Usage: Sets default verbose flag
-    # Params: $self
-    # Returns: $self->verbose
-
-    my $self = shift;
-
-    $self->verbose( 0 );
-};
+has ok =>
+(
+    is      => 'ro',
+    isa     => sub {
+                 die "$_[0]: nagios ok exit code is 0" if ( $_[0] ne '0' );
+               },
+    default => sub { return 0 },
+);
 
 
-sub default_help
-{
-    # Usage: Sets default help flag
-    # Params: $self
-    # Returns: $self->help
+has warning =>
+(
+    is      => 'ro',
+    isa     => sub {
+                 die "$_[0]: nagios warning exit code is 1" if ( $_[0] ne '1' );
+               },
+    default => sub { return 1 },
+);
 
-    my $self = shift;
 
-    $self->help( 0 );
-};
+has critical =>
+(
+    is      => 'ro',
+    isa     => sub {
+                 die "$_[0]: nagios critical exit code is 2" if ( $_[0] ne '2' );
+               },
+    default => sub { return 2 },
+);
+
+
+has unknown =>
+(
+    is      => 'ro',
+    isa     => sub {
+                 die "$_[0]: nagios unknown exit code is 3" if ( $_[0] ne '3');
+               },
+    default => sub { return 3 },
+);
 
 
 has exit_code =>
 (
     is  => 'rw',
     isa => sub {
-                 die "$_[0]: not a number" if ( $_[0] !~ m/^\d+$/ );
+                 die "$_[0]: invalid nagios exit code" if ( $_[0] !~ m/^(0|1|2|3)$/ );
                },
 );
 
@@ -279,7 +296,8 @@ has exit_stats =>
 
 has config =>
 (
-    is      => 'rw',
+    is      => 'ro',
+    lazy    => 1,
     isa     => sub {
                      die "$_[0]: not a hashref" if ( ref( $_[0] ) ne 'HASH');
                    },
@@ -287,9 +305,19 @@ has config =>
 );
 
 
+has config_file =>
+(
+    is      => 'ro',
+    isa     => sub {
+                 die "$_[0]: not a readable file" if ( ! -T $_[0] || ! -r $_[0] );
+               },
+    default => sub { return "$FindBin::Bin/../config.yaml" },
+);
+
+
 has log =>
 (
-    is      => 'rw',
+    is      => 'ro',
     lazy    => 1,
     isa     => sub {
                      die "$_[0]: not a log4perl class" if ( !
@@ -301,11 +329,11 @@ has log =>
 
 has verbose =>
 (
-    is      => 'rw',
+    is      => 'ro',
     isa     => sub {
                  die "$_[0]: not a boolean" if ( $_[0] !~ m/^(0|1)$/ );
                },
-    default => \&default_verbose,
+    default => sub { return 0 },
 );
 
 
@@ -315,7 +343,7 @@ has help =>
     isa     => sub {
                      die "$_[0]: not a boolean" if ( $_[0] !~ m/^(0|1)$/ );
                },
-    default => \&default_help,
+    default => sub { return 0 },
 );
 
 
