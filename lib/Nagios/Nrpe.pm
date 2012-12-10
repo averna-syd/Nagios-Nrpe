@@ -5,7 +5,11 @@ use Carp;
 use YAML;
 use Log::Log4perl;
 use Log::Dispatch::Syslog;
-with('Nagios::Nrpe::Check::Hostsfile');
+
+with(
+        'Nagios::Nrpe::Check::Example',
+        'Nagios::Nrpe::Check::Hostsfile',
+    );
 
 =head1 NAME
 
@@ -26,56 +30,98 @@ Example usage:
 
     use Nagios::Nrpe;
 
-    my $check = Nagios::Nrpe->new();
+    my $nrpe = Nagios::Nrpe->new();
 
 =cut
 
 
-sub nagios_ok
+sub check
 {
-    # Usage: Sets default ok exit code.
+    # Usage: Accepts the built in check called and attempts to load it.
     # Params: $self
-    # Returns: $self->exit_ok
+    #         $method - name of check sub.
+    # Returns: Nothing.
 
     my $self = shift;
+    my $method = lc ( shift ) // 'example';
 
-    $self->exit_ok( 0 );
+    for my $key ( keys %{ $self->config->{check} } )
+    {
+        if ( $method eq $key )
+        {
+            $self->$method;
+        }
+    }
+
+    $self->error( 'Check not found.' );
 };
 
 
-sub nagios_warning 
+sub exit_ok
 {
-    # Usage: Sets default warning exit code.
+    # Usage: Sets default ok exit.
     # Params: $self
-    # Returns: $self->exit_warning
+    # Returns: Sets up "ok" exit and calls exit.
 
-    my $self = shift;
+    my $self    = shift;
+    my $message = shift // 'Unknown';
+    my $stats   = shift // '';
 
-    $self->exit_warning( 1 );
+    $self->exit_code( 0 );
+    $self->exit_message( $message );
+    $self->exit_stats( $stats );
+    $self->exit;
 };
 
 
-sub nagios_critical
+sub exit_warning 
 {
-    # Usage: Sets default critical exit code.
+    # Usage: Sets default warning exit.
     # Params: $self
-    # Returns: $self->exit_critical
+    # Returns: Sets up "warning" exit and calls exit.
 
     my $self = shift;
+    my $message = shift // 'Unknown';
+    my $stats   = shift // '';
 
-    $self->exit_critical( 2 );
+    $self->exit_code( 1 );
+    $self->exit_message( $message );
+    $self->exit_stats( $stats );
+    $self->exit;
+};
+
+
+sub exit_critical
+{
+    # Usage: Sets default critical exit.
+    # Params: $self
+    # Returns: Sets up "critical" exit and calls exit.
+
+    my $self = shift;
+    my $message = shift // 'Unknown';
+    my $stats   = shift // '';
+
+    $self->exit_code( 2 );
+    $self->exit_message( $message );
+    $self->exit_stats( $stats );
+    $self->exit;
 };
 
 
 sub nagios_unknown
 {
-    # Usage: Sets default unknown exit code.
+    # Usage: Sets default unknown exit.
     # Params: $self
-    # Returns: $self->exit_unknown
+    # Returns: Sets up "critical" exit and calls exit.
 
     my $self = shift;
+    my $message = shift // 'Unknown';
+    my $stats   = shift // '';
 
-    $self->exit_unknown( 3 );
+    $self->exit_code( 3 );
+    $self->exit_message( $message );
+    $self->exit_stats( $stats );
+    $self->exit;
 };
 
 
@@ -228,46 +274,6 @@ has exit_stats =>
     isa => sub {
                  die "$_[0]: stats is empty" if ( $_[0] !~ m/\w+/ );
                },
-);
-
-
-has exit_ok =>
-(
-    is      => 'rw',
-    isa     => sub {
-                     die "$_[0]: not a number" if ( $_[0] !~ m/^\d+$/ );
-                   },
-    default => \&nagios_ok,
-);
-
-
-has exit_warning =>
-(
-    is      => 'rw',
-    isa     => sub {
-                     die "$_[0]: not a number" if ( $_[0] !~ m/^\d+$/ );
-                   },
-    default => \&nagios_warning,
-);
-
-
-has exit_critical =>
-(
-    is      => 'rw',
-    isa     => sub {
-                     die "$_[0]: not a number" if ( $_[0] !~ m/^\d+$/ );
-                   },
-    default => \&nagios_critical,
-);
-
-
-has exit_unknown =>
-(
-    is      => 'rw',
-    isa     => sub {
-                     die "$_[0]: not a number" if ( $_[0] !~ m/^\d+$/ );
-                   },
-    default => \&nagios_unknown,
 );
 
 

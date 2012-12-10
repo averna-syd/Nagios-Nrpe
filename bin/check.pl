@@ -7,8 +7,8 @@ use Data::Dumper;
 use Nagios::Nrpe;
 
 my $nrpe = Nagios::Nrpe->new( verbose => 1 );
-$nrpe->info('stuff');
-#$check->yum;
+#$nrpe->info('stuff');
+$nrpe->check('example');
 
 #print Dumper ( $nrpe );
 #print $check->command->{verbose} . "\n";
