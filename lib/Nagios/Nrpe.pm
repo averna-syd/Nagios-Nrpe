@@ -136,20 +136,17 @@ sub check
 {
     # Usage: Accepts the built-in check called and attempts to load it.
     # Params: $self
-    #         $method - name of check sub.
+    #         $check - name of check sub.
     # Returns: Nothing.
 
-    my $self = shift;
-    my $method = lc ( shift ) // 'example';
+    my $self  = shift;
+    my $check = lc ( shift ) // 'example';
 
-    $self->info('Attempting to run check: ' . $method);
+    $self->info( 'Attempting to run check: ' . $check );
 
     for my $key ( keys %{ $self->config->{check} } )
     {
-        if ( $method eq $key )
-        {
-            $self->$method;
-        }
+        $self->$check if ( $check eq $key );
     }
 
     $self->error( 'Check not found.' );
