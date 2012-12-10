@@ -7,14 +7,14 @@ use Data::Dumper;
 use Nagios::Nrpe;
 
 my $nrpe = Nagios::Nrpe->new( verbose => 1 );
-$nrpe->log->info('stuff');
+$nrpe->info('stuff');
 #$check->yum;
 
 #print Dumper ( $nrpe );
 #print $check->command->{verbose} . "\n";
 
-#$check->exit_message('Something');
-#$check->exit_stats('stat=123;');
-#$check->exit_code( $check->exit_warning );
-#$check->exit;
-
+#$nrpe->exit_message('Something');
+#$nrpe->exit_stats('stat=123;');
+#$nrpe->exit_code( $nrpe->exit_ok );
+#$nrpe->exit;
+$nrpe->error('OPPS!');

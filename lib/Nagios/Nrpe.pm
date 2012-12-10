@@ -86,8 +86,8 @@ sub exit
     # Params: $self
     # Returns: exits program.
 
-    my $self = shift;
-
+    my $self         = shift;
+    
     chomp ( my $exit_code    = ( defined $self->exit_code ) 
             ? $self->exit_code : $self->exit_unknown );
 
@@ -138,6 +138,48 @@ sub load_logger
 };
 
 
+sub error
+{
+    # Usage: Standard error message handling call.
+    # Params: $self
+    # Returns: exits program.
+
+    my $self = shift;
+    chomp ( my $msg  = shift // 'Unknown error' );
+
+    $self->log->error( $msg );
+    $self->exit_message( $msg );
+    $self->exit_code( $self->exit_critical );
+    $self->exit;
+};
+
+
+sub info
+{
+    # Usage: Standard info message handling call.
+    # Params: $self
+    # Returns: nothing.
+
+    my $self = shift;
+    chomp ( my $msg  = shift // 'Unknown info' );
+    
+    $self->log->info( $msg );
+};
+
+
+sub debug
+{
+    # Usage: Standard debug message handling call.
+    # Params: $self
+    # Returns: nothing.
+
+    my $self = shift;
+    chomp ( my $msg  = shift // 'Unknown debug' );
+
+    $self->log->debug( $msg );
+};
+
+
 sub default_verbose
 {
     # Usage: Sets default verbose flag
@@ -175,7 +217,7 @@ has exit_message =>
 (
     is  => 'rw',
     isa => sub {
-                 die "$_[0]: exit message required" if ( $_[0] !~ m/\w+/ );
+                 die "$_[0]: exit message is empty" if ( $_[0] !~ m/\w+/ );
                },
 );
 
@@ -184,7 +226,7 @@ has exit_stats =>
 (
     is  => 'rw',
     isa => sub {
-                 die "$_[0]: stats empty" if ( $_[0] !~ m/\w+/ );
+                 die "$_[0]: stats is empty" if ( $_[0] !~ m/\w+/ );
                },
 );
 
