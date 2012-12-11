@@ -13,7 +13,7 @@ use Log::Log4perl;
 use Log::Dispatch::Syslog;
 use English qw( -no_match_vars ) ;
 
-our $VERSION  = '0.001';
+our $VERSION = '0.001';
 
 ## no critic (return)
 ## no critic (POD)

@@ -12,7 +12,7 @@ use Nagios::Nrpe;
 use Getopt::Long;
 use Pod::Usage;
 
-our $VERSION  = '0.001';
+our $VERSION = '0.001';
 
 ## no critic (POD)
 
