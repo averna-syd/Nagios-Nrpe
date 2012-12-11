@@ -10,10 +10,6 @@ use FindBin;
 use Log::Log4perl;
 use Log::Dispatch::Syslog;
 
-with(
-        'Nagios::Nrpe::Check::Example',
-        'Nagios::Nrpe::Check::Hostsfile',
-    );
 
 =head1 NAME
 
@@ -21,7 +17,7 @@ Nagios::Nrpe
 
 =head 1 ABSTRACT
 
-A small framework for custom Nagios NRPE client side checks. 
+A small framework for creating custom Nagios NRPE client side checks. 
 The main objective of these modules is to remove the repetitive boilerplate
 required when making client side NRPE checks without hopefully adding in too
 many dependencies.
@@ -47,21 +43,6 @@ Example usage:
     # Also, causes all logging to be printed to stdout.
 
     my $nrpe = Nagios::Nrpe->new( verbose => 1, );
-
-
-    # List built-in checks.
-    # These NRPE checks are available for use.
-
-    $nrpe->check_list;
-
-
-    # Built-in check.
-    # Call a built-in check by name "example".
-    # Built-ins should take it from here and exit 
-    # the program how one would expect a nagios check 
-    # to work.
-
-    $nrpe->check( 'example' );
 
 
     # Log info message.
@@ -114,43 +95,6 @@ Example usage:
 
 
 =cut
-
-
-sub check_list
-{
-    # Usage: Prints out available built-in checks.
-    # Params: $self
-    # Returns: Nothing.
-
-    my $self = shift;
-
-    $self->info('Generating built-in check list.');
-
-    map { print 'check: ' . $_ . "\n" } ( keys %{ $self->config->{check} } );
-
-    $self->exit_ok( 'Check list complete.' );
-};
-
-
-sub check
-{
-    # Usage: Accepts the built-in check called and attempts to load it.
-    # Params: $self
-    #         $check - name of check sub.
-    # Returns: Nothing.
-
-    my $self  = shift;
-    my $check = lc ( shift ) // 'example';
-
-    $self->info( 'Attempting to run check: ' . $check );
-
-    for my $key ( keys %{ $self->config->{check} } )
-    {
-        $self->$check if ( $check eq $key );
-    }
-
-    $self->error( 'Check not found.' );
-};
 
 
 sub exit_ok
@@ -325,10 +269,11 @@ sub debug
 };
 
 
-sub generate_check
+sub _generate_check
 {
-    my $self = shift;
-    return <<'EOF';
+    my $self       = shift;
+    my $check_name = $self->check_name;
+    my $check      = <<'EOF';
 #!/usr/bin/env perl
 
 use warnings;
@@ -383,6 +328,22 @@ INSERT YOUR DESCRIPTION HERE.
 =cut
 
 EOF
+
+    $check_name    =~ s/\.pl^//xmsi;
+    $check         =~ s/[%(\s)+checkname(\s)+%]/$check_name/xmsgi;
+
+    my $check_path = $self->check_path . '/' . $check_name . '.pl';
+
+    croak "File $check_path already exists" if ( -e $check_path );
+
+    open ( my $fh, '<',  $check_path )
+    || croak "Failed to create check $check_path: $!";
+
+        print $fh $check;
+
+    close ( $fh );
+
+    return;
 };
 
 
@@ -475,6 +436,7 @@ has config =>
 has config_file =>
 (
     is      => 'ro',
+    lazy    => 1,
     isa     => sub {
                      croak "$_[0]: not a readable file"
                      if ( ! -T $_[0] || ! -r $_[0] );
@@ -503,6 +465,27 @@ has verbose =>
                  if ( $_[0] !~ m/ ^ (?:0|1) $/xms );
                },
     default => sub { return 0 },
+);
+
+
+has check_name =>
+(
+    is   => 'ro',
+    lazy => 1,
+    isa  => sub {
+                 croak "$_[0]: invalid check name"
+                 if ( $_[0] !~ m/ ^ (?:\w) $ /xms );
+               },
+);
+
+
+has check_path =>
+(
+    is   => 'ro',
+    lazy => 1,
+    isa  => sub { croak "$_[0]: directory does not exist or can't write to
+                        directory" if ( ! -d $_[0] || ! -w $_[0] );
+                },
 );
 
 
