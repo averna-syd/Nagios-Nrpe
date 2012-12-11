@@ -413,77 +413,81 @@ dependencies.
 
 Finally, this over-engineered bit of code to solve a very small problem
 was dreamt up out of boredom and a desire to have consistent ad hoc NAGIOS 
-NRPE scripts. More effort to setup than value added?
+NRPE scripts. More effort to setup than value added? Wel...
 
 =head1 SYNOPSIS
 
-Allows the creation of custom NAGIOS NRPE checks.
-
-Example usage:
-
     use Nagios::Nrpe;
-
-    # Standard call.
-    # Assuming the log flag is turned on within the yaml config
-    # file, all log messages will be logged to syslog.
-
+    
+    # Assuming log is turned on all info & debug messages will 
+    # be logged to syslog.
+    
     my $nrpe = Nagios::Nrpe->new();
-
-
-    # Verbose call.
-    # Overides the log flag within the yaml config
-    # file and logs messages syslog.
-    # Also, causes all logging to be printed to stdout.
-
-    my $nrpe = Nagios::Nrpe->new( verbose => 1, );
-
-
-    # Log info message.
+    
+    
+    # log
+    # When enabled all info & debug messages will log to
+    # syslog. Disabled by default.
+    
+    my $nrpe = Nagios::Nrpe->new( log => 1 ); # enable
+    
+    
+    # verbose
+    # All info & debug messages will print to stdout.
+    # If log is turned on will also log syslog.
+    
+    my $nrpe = Nagios::Nrpe->new( verbose => 1, ); # enable
+    
+    
+    # info
     # If verbose is on will print to stdout.
-
+    # If log is on will log to syslog.
+    
     $nrpe->info( 'Insert info message here.' );
-
-
-    # Log debug message.
+    
+    
+    # debug
     # If verbose is on will print to stdout.
-
+    # If log is on will log to syslog.
+    
     $nrpe->debug( 'Insert debug message here.' );
     
-
-    # Log error message.
+    
+    # error
     # If verbose is on will print to stdout.
+    # If log is on will log to syslog.
     # NOTE: An error message call will cause the program to exit with a
     # critical nagios exit code.
-
+    
     $nrpe->error( 'Not working, oh noes!' );
-
-
-    # Exit OK
-    # Pass human readable message and then nagios stats (if any).
+    
+    
+    # exit_ok
+    # Pass human readable message and then (optionally) nagios stats.
     # This call will exit the program with the desired exit code.
-
+    
     $nrpe->exit_ok( 'Looks good', 'stat1=123;stat2=321;' );
-
-
-    # Exit WARNING
-    # Pass human readable message and then nagios stats (if any).
+    
+    
+    # exit_warning
+    # Pass human readable message and then (optionally) nagios stats.
     # This call will exit the program with the desired exit code.
-
+    
     $nrpe->exit_warning( 'Looks interesting', 'stat1=123;stat2=321;' );
-
-
-    # Exit CRITICAL
-    # Pass human readable message and then nagios stats (if any).
+    
+    
+    # exit_critical
+    # Pass human readable message and then (optionally) nagios stats.
     # This call will exit the program with the desired exit code.
-
+    
     $nrpe->exit_critical( 'oh god, oh god, we're all going to die',
-                         'stat1=123;stat2=321;' );
-
-
-    # Exit UNKNOWN
-    # Pass human readable message and then nagios stats (if any).
+                          'stat1=123;stat2=321;' );
+    
+    
+    # exit_unknown
+    # Pass human readable message and then (optionally) nagios stats.
     # This call will exit the program with the desired exit code.
-
+    
     $nrpe->exit_critical( 'I donno lol!' );
 
 =head1 AUTHOR
