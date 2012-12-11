@@ -14,91 +14,6 @@ use Log::Dispatch::Syslog;
 ## no critic (POD)
 ## no critic (Quotes)
 
-=head1 NAME
-
-Nagios::Nrpe
-
-=head 1 ABSTRACT
-
-A small framework for creating custom Nagios NRPE client side checks. 
-The main objective of these modules is to remove the repetitive boilerplate
-required when making client side NRPE checks without hopefully adding in too
-many dependencies.
-
-=head1 SYNOPSIS
-
-Allows the creation of custom Nagios client side NRPE checks.
-
-Example usage:
-
-    use Nagios::Nrpe;
-
-    # Standard call.
-    # Assuming the log flag is turned on within the yaml config
-    # file, all log messages will be logged to syslog.
-
-    my $nrpe = Nagios::Nrpe->new();
-
-
-    # Verbose call.
-    # Overides the log flag within the yaml config
-    # file and logs messages syslog.
-    # Also, causes all logging to be printed to stdout.
-
-    my $nrpe = Nagios::Nrpe->new( verbose => 1, );
-
-
-    # Log info message.
-    # If verbose is on will print to stdout.
-
-    $nrpe->info( 'Insert info message here.' );
-
-
-    # Log debug message.
-    # If verbose is on will print to stdout.
-
-    $nrpe->debug( 'Insert debug message here.' );
-    
-
-    # Log error message.
-    # If verbose is on will print to stdout.
-    # NOTE: An error message call will cause the program to exit with a
-    # critical nagios exit code.
-
-    $nrpe->error( 'Not working, oh noes!' );
-
-
-    # Exit OK
-    # Pass human readable message and then nagios stats (if any).
-    # This call will exit the program with the desired exit code.
-
-    $nrpe->exit_ok( 'Looks good', 'stat1=123;stat2=321;' );
-
-
-    # Exit WARNING
-    # Pass human readable message and then nagios stats (if any).
-    # This call will exit the program with the desired exit code.
-
-    $nrpe->exit_warning( 'Looks interesting', 'stat1=123;stat2=321;' );
-
-
-    # Exit CRITICAL
-    # Pass human readable message and then nagios stats (if any).
-    # This call will exit the program with the desired exit code.
-
-    $nrpe->exit_critical( 'oh god, oh god, we're all going to die',
-                         'stat1=123;stat2=321;' );
-
-
-    # Exit UNKNOWN
-    # Pass human readable message and then nagios stats (if any).
-    # This call will exit the program with the desired exit code.
-
-    $nrpe->exit_critical( 'I donno lol!' );
-
-
-=cut
-
 
 sub exit_ok
 {
@@ -439,3 +354,115 @@ has check_path =>
 
 
 1;
+
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Nagios::Nrpe - A small framework for creating custom Nagios NRPE client side
+checks and streamling their usage.
+
+=head1 VERSION
+
+version 0.001
+
+=head 1 DESCRIPTION
+
+The main objective of this module is to allow one to rapidly create new custom
+nagios NRPE checks. This is done in two ways.
+
+Firstly, this module allows one to create new check scripts on the fly.
+
+Secondly, the module gives the user a number of necessary and/or commonly 
+found features used in NRPE checks. Thus removing much of the repetitive
+boilerplate in creating new checks.
+
+Hopefull this is achieved in such a way as to avoid too many 
+dependencies.
+
+=head1 SYNOPSIS
+
+Allows the creation of custom Nagios client side NRPE checks.
+
+Example usage:
+
+    use Nagios::Nrpe;
+
+    # Standard call.
+    # Assuming the log flag is turned on within the yaml config
+    # file, all log messages will be logged to syslog.
+
+    my $nrpe = Nagios::Nrpe->new();
+
+
+    # Verbose call.
+    # Overides the log flag within the yaml config
+    # file and logs messages syslog.
+    # Also, causes all logging to be printed to stdout.
+
+    my $nrpe = Nagios::Nrpe->new( verbose => 1, );
+
+
+    # Log info message.
+    # If verbose is on will print to stdout.
+
+    $nrpe->info( 'Insert info message here.' );
+
+
+    # Log debug message.
+    # If verbose is on will print to stdout.
+
+    $nrpe->debug( 'Insert debug message here.' );
+    
+
+    # Log error message.
+    # If verbose is on will print to stdout.
+    # NOTE: An error message call will cause the program to exit with a
+    # critical nagios exit code.
+
+    $nrpe->error( 'Not working, oh noes!' );
+
+
+    # Exit OK
+    # Pass human readable message and then nagios stats (if any).
+    # This call will exit the program with the desired exit code.
+
+    $nrpe->exit_ok( 'Looks good', 'stat1=123;stat2=321;' );
+
+
+    # Exit WARNING
+    # Pass human readable message and then nagios stats (if any).
+    # This call will exit the program with the desired exit code.
+
+    $nrpe->exit_warning( 'Looks interesting', 'stat1=123;stat2=321;' );
+
+
+    # Exit CRITICAL
+    # Pass human readable message and then nagios stats (if any).
+    # This call will exit the program with the desired exit code.
+
+    $nrpe->exit_critical( 'oh god, oh god, we're all going to die',
+                         'stat1=123;stat2=321;' );
+
+
+    # Exit UNKNOWN
+    # Pass human readable message and then nagios stats (if any).
+    # This call will exit the program with the desired exit code.
+
+    $nrpe->exit_critical( 'I donno lol!' );
+
+=head1 AUTHOR
+
+Sarah Fuller <sarah@averna.id.au>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by Sarah Fuller.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

@@ -26,23 +26,26 @@ my $nrpe = Nagios::Nrpe->new( check_name => $opts->{'check-name'},
 
 $nrpe->generate_check;
 
-#my $nrpe = Nagios::Nrpe->new();
-#print Dumper ( $nrpe->config );
-#( $opts->{'check-list'} ) ? $nrpe->check_list
-#: ( $opts->{check} )      ? $nrpe->check( $opts->{check} )
-#: ( $opts->{man} )        ? print "man\n"
-#: print "help\n";
 
 __END__
 
+=pod
+
 =head1 NAME
 
-B<nagios_nrpe.pl> - A small framework for creating custom Nagios NRPE client
-side checks.
+B<nagios_nrpe.pl> - Create custom Nagios NRPE client checks on the fly.
+
+=head1 VERSION
+
+version 0.001
 
 =head1 SYNOPSIS
 
- nagios_nrpe.pl -n yum_upadate_notify
+ nagios_nrpe.pl -n example_check
+
+=head1 DESCRIPTION
+
+Something, something darkside.
 
 =head1 OPTIONS
 
@@ -66,12 +69,16 @@ side checks.
 
 =back
 
-=head1 DESCRIPTION
-
-Something, something darkside.
-
 =head1 AUTHOR
 
-    Sarah Fuller, C<< <sarah.fuller at uts.edu.au> >>
+Sarah Fuller <sarah@averna.id.au>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by Sarah Fuller.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
+
