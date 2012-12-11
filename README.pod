@@ -28,9 +28,25 @@ NRPE scripts. More effort to setup than value added? Wel...
 
 =head2 CREATE NEW NRPE CHECK
     
-    nagios_nrpe.pl -n example_check
+    perl nagios_nrpe.pl
 
-=head2 SYNOPSIS
+    Usage:
+        nagios_nrpe.pl -n example_check
+
+    Options:
+        -n, --name The name of the NAGIOS NRPE check script to be created.
+        -p, --path Creation path. Default is current working directory.
+        -v, --verbose Prints the error(s) found.
+        -h, --help Prints a brief help message.
+        -m, --man Prints the full manual page.
+    
+    
+   
+   
+    perl nagios_nrpe.pl -n example_check
+    + /foo/example_check.pl
+
+=head2 MODULE SYNOPSIS
 
     use Nagios::Nrpe;
     
