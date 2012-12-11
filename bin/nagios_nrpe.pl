@@ -12,7 +12,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 # debug
-#use Data::Dumper;
+use Data::Dumper;
 
 my $opts = { verbose => 0, 'check-path' => getcwd };
 GetOptions( $opts, 'check-name|n=s', 'check-path|p', 'verbose|v', 'help|h', 'man|m' );
@@ -24,6 +24,10 @@ my $nrpe = Nagios::Nrpe->new( check_name => $opts->{'check-name'},
                               verbose    => $opts->{verbose}, 
                             );
 
+$nrpe->generate_check;
+
+#my $nrpe = Nagios::Nrpe->new();
+#print Dumper ( $nrpe->config );
 #( $opts->{'check-list'} ) ? $nrpe->check_list
 #: ( $opts->{check} )      ? $nrpe->check( $opts->{check} )
 #: ( $opts->{man} )        ? print "man\n"

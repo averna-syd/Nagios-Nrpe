@@ -10,6 +10,9 @@ use FindBin;
 use Log::Log4perl;
 use Log::Dispatch::Syslog;
 
+## no critic (return)
+## no critic (POD)
+## no critic (Quotes)
 
 =head1 NAME
 
@@ -269,77 +272,23 @@ sub debug
 };
 
 
-sub _generate_check
+sub generate_check
 {
     my $self       = shift;
     my $check_name = $self->check_name;
-    my $check      = <<'EOF';
-#!/usr/bin/env perl
+    my $template   = $self->config->{template};
 
-use warnings;
-use strict;
+    $check_name .= '.pl' if ( $check_name !~ m/\.pl^/xmsi );
+    $template   =~ s/\[\%\s+checkname\s+\%\]/$check_name/xmsgi;
 
-use Nagios::Nrpe;
-use Getopt::Long;
-use Pod::Usage;
-
-my $opts = { verbose => 0 };
-GetOptions( $opts, 'verbose|v', 'help|h', 'man|m' );
-
-my $nrpe = Nagios::Nrpe->new( verbose => $opts->{verbose} );
-
-
-__END__
-
-=head1 NAME
-
-B<[% checkname %].pl> - INSERT INFO HERE.
-
-=head1 SYNOPSIS
-
-=head2 Available Options
-
- <[% checkname %].pl --verbose <prints info to stdout> --help <prints help> --man <prints full man page>
-
-=head1 OPTIONS
-
-=over 8
-
-=item B<-v, --verbose>
- Prints the output from $nrpe->info(), $nrpe->debug() and $nrpe->error() to
- stdout.
-
-=item B<-h, --help>
- Prints a brief help message from this script.
-
-=item B<-m, --man>
- Prints the full manual page from this script.
-
-=back
-
-=head1 DESCRIPTION
-
-INSERT YOUR DESCRIPTION HERE.
-
-=head1 AUTHOR
-
-    INSERT AUTHOR NAME, C<< < INSERT AUTHOR EMAIL > >>
-
-=cut
-
-EOF
-
-    $check_name    =~ s/\.pl^//xmsi;
-    $check         =~ s/[%(\s)+checkname(\s)+%]/$check_name/xmsgi;
-
-    my $check_path = $self->check_path . '/' . $check_name . '.pl';
+    my $check_path = $self->check_path . '/' . $check_name;
 
     croak "File $check_path already exists" if ( -e $check_path );
 
-    open ( my $fh, '<',  $check_path )
+    open ( my $fh, '>',  $check_path )
     || croak "Failed to create check $check_path: $!";
 
-        print $fh $check;
+        print $fh $template;
 
     close ( $fh );
 
@@ -474,7 +423,7 @@ has check_name =>
     lazy => 1,
     isa  => sub {
                  croak "$_[0]: invalid check name"
-                 if ( $_[0] !~ m/ ^ (?:\w) $ /xms );
+                 if ( $_[0] !~ m/ ^ \w+ $ /xms );
                },
 );
 
@@ -483,8 +432,8 @@ has check_path =>
 (
     is   => 'ro',
     lazy => 1,
-    isa  => sub { croak "$_[0]: directory does not exist or can't write to
-                        directory" if ( ! -d $_[0] || ! -w $_[0] );
+    isa  => sub { croak "$_[0]: directory does not exist or can't write to"
+                        . " directory" if ( ! -d $_[0] || ! -w $_[0] );
                 },
 );
 
