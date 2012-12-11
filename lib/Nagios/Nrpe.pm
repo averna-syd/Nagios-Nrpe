@@ -398,7 +398,7 @@ Nagios::Nrpe - Small framework for creating & using custom NAGIOS NRPE checks.
 
 version 0.001
 
-=head 1 DESCRIPTION
+=head1 DESCRIPTION
 
 The main objective of this module is to allow one to rapidly create and use
 new custom NAGIOS NRPE checks. This is done in two ways.
@@ -493,7 +493,7 @@ NRPE scripts. More effort to setup than value added? Wel...
 
 =head1 AUTHOR
 
-Sarah Fuller <sarah@averna.id.au>
+Sarah Fuller, C<< <sarah at averna.id.au> >>
 
 =head1 COPYRIGHT AND LICENSE
 

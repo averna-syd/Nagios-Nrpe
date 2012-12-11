@@ -103,7 +103,7 @@ Nagios::Nrpe module.
 
 =head1 AUTHOR
 
-Sarah Fuller <sarah@averna.id.au>
+Sarah Fuller, C<< <sarah at averna.id.au> >>
 
 =head1 COPYRIGHT AND LICENSE
 
