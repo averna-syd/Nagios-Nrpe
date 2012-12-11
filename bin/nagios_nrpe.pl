@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,17 +16,47 @@ our $VERSION  = '0.001';
 
 ## no critic (POD)
 
-my $opts = { verbose => 0, 'check-path' => getcwd };
-GetOptions( $opts, 'check-name|n=s', 'check-path|p', 'verbose|v', 'help|h', 'man|m' );
 
-exit pod2usage(1) if ( ! $opts->{'check-name'} );
+## Setup default options.
+my $OPTIONS = { 
+             verbose => 1,
+             path    => getcwd
+           };
 
-my $nrpe = Nagios::Nrpe->new( check_name => $opts->{'check-name'}, 
-                              check_path => $opts->{'check-path'},
-                              verbose    => $opts->{verbose}, 
-                            );
+# Accept options in from the command line.
+GetOptions( $OPTIONS, 
+                      'name|n=s', 
+                      'path|p', 
+                      'verbose|v', 
+                      'help|h',
+                      'man|m', 
+          );
 
-$nrpe->generate_check;
+# Basic command line options flag switch.
+( $OPTIONS->{help} )     ? exit pod2usage( 1 )
+: ( $OPTIONS->{man} )    ? exit pod2usage( -exitstatus => 0, -verbose => 2 )
+: ( ! $OPTIONS->{name} ) ? exit pod2usage( 1 )
+:                       generate_check( $OPTIONS );
+
+
+sub generate_check
+{
+    # Usage: Calls Nagios::Nrpe to generate a new nagios nrpe check.
+    # Params: $options - Expecting hashref of command line params.
+    # Returns: Nothing.
+
+    my $options = shift;
+    my $nrpe    = Nagios::Nrpe->new(  check_name => $options->{name}, 
+                                      check_path => $options->{path},
+                                      verbose    => $options->{verbose}, 
+                                   );
+
+    my $check_path = $nrpe->generate_check;
+
+    say '+ ' . $check_path;
+
+    return;
+};
 
 
 __END__
@@ -53,10 +84,10 @@ Nagios::Nrpe module.
 
 =over 8
 
-=item B<-n, --check-name>
+=item B<-n, --name>
  The name of the NAGIOS NRPE check script to be created.
 
-=item B<-p, --check-path>
+=item B<-p, --path>
  Creation path. Default is current working directory.
 
 =item B<-v, --verbose>

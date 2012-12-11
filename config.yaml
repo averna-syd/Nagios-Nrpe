@@ -55,54 +55,84 @@ log4perl:
 # base template for new nrpe checks.
 template: |
   #!/usr/bin/env perl
-
-  use warnings;
+  
+  use 5.010;
   use strict;
-
+  use warnings;
+  
   use Nagios::Nrpe;
   use Getopt::Long;
   use Pod::Usage;
 
-  my $opts = { verbose => 0 };
-  GetOptions( $opts, 'verbose|v', 'help|h', 'man|m' );
 
-  my $nrpe = Nagios::Nrpe->new( verbose => $opts->{verbose} );
+  ## Setup default options.
+  my $OPTIONS = { verbose => 1, }; 
+
+  # Accept options in from the command line.
+  GetOptions( $OPTIONS, 'verbose|v', 'help|h', 'man|m', );
+
+  # Basic command line options flag switch.
+  ( $OPTIONS->{help} )     ? exit pod2usage( 1 ) 
+  : ( $OPTIONS->{man} )    ? exit pod2usage( -exitstatus => 0, -verbose => 2 )
+  : check( $OPTIONS );
+
+
+  sub check
+  {
+      # Usage: INSERT USAGE DOCS HERE.
+      # Params: $options - Expecting hashref of command line params.
+      # INSERT MORE PARAM DOCS HERE.
+      # Returns: INSERT RETURN DOCS HERE.
+  
+      my $options = shift;
+      my $nrpe    = Nagios::Nrpe->new( verbose => $options->{verbose}, );
+
+      # INSERT CODE LOGIC HERE.
+      # SEE: Nagios::Nrpe DOCS FOR MORE INFOMATION.
+
+      $nrpe->exit_ok('OK');
+  };
 
 
   __END__
+  
+  =pod
 
   =head1 NAME
 
-  B<[% checkname %]> - INSERT INFO HERE.
+  B<[% check_name %]> - INSERT ABSTRACT HERE
+
+  =head1 VERSION
+
+  version INSERT VERSION HERE
 
   =head1 SYNOPSIS
 
-  =head2 Available Options
+   [% check_name %]
+  
+  =head1 DESCRIPTION
 
-   <[% checkname %] --verbose <prints info to stdout> --help <prints help> --man <prints full man page>
+  INSERT DESCRIPTION HERE
 
   =head1 OPTIONS
 
   =over 8
 
   =item B<-v, --verbose>
-   Prints the output from $nrpe->info(), $nrpe->debug() and $nrpe->error() to
-   stdout.
+   Prints the error(s) found.
 
   =item B<-h, --help>
-   Prints a brief help message from this script.
+   Prints a brief help message.
 
   =item B<-m, --man>
-   Prints the full manual page from this script.
+   Prints the full manual page.
 
   =back
 
-  =head1 DESCRIPTION
-
-  INSERT YOUR DESCRIPTION HERE.
-
   =head1 AUTHOR
 
-  INSERT AUTHOR NAME, C<< < INSERT AUTHOR EMAIL > >>
+  INSERT AUTHOR HERE <INSERT EMAIL HERE>
 
+  =head1 COPYRIGHT AND LICENSE
+  
   =cut

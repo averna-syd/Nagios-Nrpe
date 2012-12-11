@@ -1,5 +1,6 @@
 package Nagios::Nrpe;
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -112,7 +113,7 @@ sub _exit
           ); 
 
 
-    print ( ( $stats =~ m/\w+/xmsi ) ? "$message|$stats\n" : "$message\n" );
+    say ( ( $stats =~ m/\w+/xmsi ) ? "$message|$stats" : "$message" );
 
     exit ( $code );
 };
@@ -206,14 +207,14 @@ sub generate_check
     #         $check_name - Internal, holds check name.
     #         $template   - Internal, holds check template.
     #         $check_path - Internal, holds path to new check file.
-    # Returns: nothing.
+    # Returns: path to newly created file.
 
     my $self       = shift;
     my $check_name = $self->check_name . '.pl';
     my $template   = $self->config->{template};
     my $check_path = $self->check_path . '/' . $check_name;
 
-    $template   =~ s/\[\%\s+checkname\s+\%\]/$check_name/xmsgi;
+    $template   =~ s/\[\%\s+check_name\s+\%\]/$check_name/xmsgi;
 
     croak "File $check_path already exists" if ( -e $check_path );
 
@@ -224,7 +225,7 @@ sub generate_check
 
     close ( $fh );
 
-    return;
+    return $check_path;
 };
 
 
