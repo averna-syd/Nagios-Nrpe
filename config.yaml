@@ -64,9 +64,14 @@ template: |
   use Getopt::Long;
   use Pod::Usage;
 
+  our $VERSION  = '0.001';
+
+  ## no critic (POD)
+  ## no critic (return)
+
 
   ## Setup default options.
-  my $OPTIONS = { verbose => 1, }; 
+  my $OPTIONS = { verbose => 0, }; 
 
   # Accept options in from the command line.
   GetOptions( $OPTIONS, 'verbose|v', 'help|h', 'man|m', );
