@@ -13,8 +13,7 @@ use Pod::Usage;
 
 our $VERSION  = '0.001';
 
-# debug
-use Data::Dumper;
+## no critic (POD)
 
 my $opts = { verbose => 0, 'check-path' => getcwd };
 GetOptions( $opts, 'check-name|n=s', 'check-path|p', 'verbose|v', 'help|h', 'man|m' );
@@ -35,7 +34,7 @@ __END__
 
 =head1 NAME
 
-B<nagios_nrpe.pl> - Create custom Nagios NRPE client checks on the fly.
+B<nagios_nrpe.pl> - Create custom NAGIOS NRPE client checks on the fly.
 
 =head1 VERSION
 
@@ -47,18 +46,18 @@ version 0.001
 
 =head1 DESCRIPTION
 
-Something, something darkside.
+This script is used to create new NAGIOS NRPE check scripts using the
+Nagios::Nrpe module.
 
 =head1 OPTIONS
 
 =over 8
 
 =item B<-n, --check-name>
- The name of the nagios NRPE check script to be created.
+ The name of the NAGIOS NRPE check script to be created.
 
 =item B<-p, --check-path>
- The path where NRPE check scipt is created. Default is current working
- directory.
+ Creation path. Default is current working directory.
 
 =item B<-v, --verbose>
  Prints the error(s) found.

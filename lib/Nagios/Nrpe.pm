@@ -89,7 +89,7 @@ sub exit_unknown
 
 sub _exit
 {
-    # Usage: Creates a valid exit state for a Nagios NRPE check. This should
+    # Usage: Creates a valid exit state for a NAGIOS NRPE check. This should
     # be called on completion of a check.
     # Params: $self
     # Returns: exits program.
@@ -97,13 +97,19 @@ sub _exit
     my $self = shift;
 
     chomp ( my $code    = ( defined $self->exit_code ) 
-            ? $self->exit_code : $self->unknown );
+            ? $self->exit_code 
+            : $self->unknown
+          );
 
     chomp ( my $message = ( defined $self->exit_message )
-            ? $self->exit_message : 'Unknown' );
+            ? $self->exit_message 
+            : 'Unknown'
+          );
 
     chomp ( my $stats   = ( defined $self->exit_stats ) 
-            ? $self->exit_stats : '' ); 
+            ? $self->exit_stats 
+            : ''
+          ); 
 
 
     print ( ( $stats =~ m/\w+/xmsi ) ? "$message|$stats\n" : "$message\n" );
@@ -193,18 +199,26 @@ sub debug
 
 sub generate_check
 {
-    my $self       = shift;
-    my $template   = $self->config->{template};
-    my $check_path = $self->check_path . '/' . $self->check_name . '.pl';
+    # Usage: Generates a new NAGIOS NRPE check.
+    # Params: $self
+    #         $check_name - Internal, holds check name.
+    #         $template   - Internal, holds check template.
+    #         $check_path - Internal, holds path to new check file.
+    # Returns: nothing.
 
-    $template   =~ s/\[\%\s+checkname\s+\%\]/$self->check_name/xmsgi;
+    my $self       = shift;
+    my $check_name = $self->check_name;
+    my $template   = $self->config->{template};
+    my $check_path = $self->check_path . '/' . $check_name . '.pl';
+
+    $template   =~ s/\[\%\s+checkname\s+\%\]/$check_name/xmsgi;
 
     croak "File $check_path already exists" if ( -e $check_path );
 
     open ( my $fh, '>',  $check_path )
     || croak "Failed to create check $check_path $ERRNO";
 
-        print $fh $template;
+        print {$fh} $template;
 
     close ( $fh );
 
@@ -364,8 +378,7 @@ __END__
 
 =head1 NAME
 
-Nagios::Nrpe - A small framework for creating custom Nagios NRPE client side
-checks and streamling their usage.
+Nagios::Nrpe - Small framework for creating & using custom NAGIOS NRPE checks.
 
 =head1 VERSION
 
@@ -373,21 +386,25 @@ version 0.001
 
 =head 1 DESCRIPTION
 
-The main objective of this module is to allow one to rapidly create new custom
-nagios NRPE checks. This is done in two ways.
+The main objective of this module is to allow one to rapidly create and use
+new custom NAGIOS NRPE checks. This is done in two ways.
 
 Firstly, this module allows one to create new check scripts on the fly.
 
 Secondly, the module gives the user a number of necessary and/or commonly 
-found features used in NRPE checks. Thus removing much of the repetitive
-boilerplate in creating new checks.
+found features one might use in NRPE checks. Thus removing much of the
+repetitive boilerplate when creating new checks.
 
-Hopefull this is achieved in such a way as to avoid too many 
-dependencies.
+Hopefully this is achieved in such a way as to avoid too many 
+dependencies. 
+
+Finally, this over-engineered bit of code to solve a very small problem
+was dreamt up out of boredom and a desire to have consistent ad hoc NAGIOS 
+NRPE scripts. More effort to setup than value added?
 
 =head1 SYNOPSIS
 
-Allows the creation of custom Nagios client side NRPE checks.
+Allows the creation of custom NAGIOS NRPE checks.
 
 Example usage:
 
