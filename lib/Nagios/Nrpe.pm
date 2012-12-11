@@ -325,6 +325,67 @@ sub debug
 };
 
 
+sub generate_check
+{
+    my $self = shift;
+    return <<'EOF';
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+
+use Nagios::Nrpe;
+use Getopt::Long;
+use Pod::Usage;
+
+my $opts = { verbose => 0 };
+GetOptions( $opts, 'verbose|v', 'help|h', 'man|m' );
+
+my $nrpe = Nagios::Nrpe->new( verbose => $opts->{verbose} );
+
+
+__END__
+
+=head1 NAME
+
+B<[% checkname %].pl> - INSERT INFO HERE.
+
+=head1 SYNOPSIS
+
+=head2 Available Options
+
+ <[% checkname %].pl --verbose <prints info to stdout> --help <prints help> --man <prints full man page>
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-v, --verbose>
+ Prints the output from $nrpe->info(), $nrpe->debug() and $nrpe->error() to
+ stdout.
+
+=item B<-h, --help>
+ Prints a brief help message from this script.
+
+=item B<-m, --man>
+ Prints the full manual page from this script.
+
+=back
+
+=head1 DESCRIPTION
+
+INSERT YOUR DESCRIPTION HERE.
+
+=head1 AUTHOR
+
+    INSERT AUTHOR NAME, C<< < INSERT AUTHOR EMAIL > >>
+
+=cut
+
+EOF
+};
+
+
 has ok =>
 (
     is      => 'ro',
@@ -440,17 +501,6 @@ has verbose =>
     isa     => sub {
                  croak "$_[0]: not a boolean" 
                  if ( $_[0] !~ m/ ^ (?:0|1) $/xms );
-               },
-    default => sub { return 0 },
-);
-
-
-has help =>
-(
-    is      => 'rw',
-    isa     => sub {
-                     croak "$_[0]: not a boolean"
-                     if ( $_[0] !~ m/ ^ (?:0|1) $ /xms );
                },
     default => sub { return 0 },
 );
