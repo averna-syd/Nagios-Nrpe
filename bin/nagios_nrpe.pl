@@ -4,12 +4,14 @@ use strict;
 use warnings;
 
 use Cwd;
-use FindBin;
-use lib "$FindBin::Bin/../lib";
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
 
 use Nagios::Nrpe;
 use Getopt::Long;
 use Pod::Usage;
+
+our $VERSION  = '0.001';
 
 # debug
 use Data::Dumper;

@@ -6,9 +6,13 @@ use warnings;
 use Moo;
 use Carp;
 use YAML;
-use FindBin;
+use FindBin qw($Bin);
+use autodie qw< :io >;
 use Log::Log4perl;
 use Log::Dispatch::Syslog;
+use English qw( -no_match_vars ) ;
+
+our $VERSION  = '0.001';
 
 ## no critic (return)
 ## no critic (POD)
@@ -190,18 +194,15 @@ sub debug
 sub generate_check
 {
     my $self       = shift;
-    my $check_name = $self->check_name;
     my $template   = $self->config->{template};
+    my $check_path = $self->check_path . '/' . $self->check_name . '.pl';
 
-    $check_name .= '.pl' if ( $check_name !~ m/\.pl^/xmsi );
-    $template   =~ s/\[\%\s+checkname\s+\%\]/$check_name/xmsgi;
-
-    my $check_path = $self->check_path . '/' . $check_name;
+    $template   =~ s/\[\%\s+checkname\s+\%\]/$self->check_name/xmsgi;
 
     croak "File $check_path already exists" if ( -e $check_path );
 
     open ( my $fh, '>',  $check_path )
-    || croak "Failed to create check $check_path: $!";
+    || croak "Failed to create check $check_path $ERRNO";
 
         print $fh $template;
 
@@ -218,7 +219,7 @@ has ok =>
                      croak "$_[0]: nagios ok exit code is 0"
                      if ( $_[0] ne '0' );
                    },
-    default => sub { return 0 },
+    default => sub { return $_[0]->config->{nagios}->{ok} },
 );
 
 
@@ -229,7 +230,7 @@ has warning =>
                      croak "$_[0]: nagios warning exit code is 1"
                      if ( $_[0] ne '1' );
                    },
-    default => sub { return 1 },
+    default => sub { return $_[0]->config->{nagios}->{warning} },
 );
 
 
@@ -240,7 +241,7 @@ has critical =>
                      croak "$_[0]: nagios critical exit code is 2"
                      if ( $_[0] ne '2' );
                    },
-    default => sub { return 2 },
+    default => sub { return $_[0]->config->{nagios}->{critical} },
 );
 
 
@@ -251,7 +252,7 @@ has unknown =>
                      croak "$_[0]: nagios unknown exit code is 3"
                      if ( $_[0] ne '3');
                    },
-    default => sub { return 3 },
+    default => sub { return $_[0]->config->{nagios}->{unknown} },
 );
 
 
@@ -300,12 +301,13 @@ has config =>
 has config_file =>
 (
     is      => 'ro',
-    lazy    => 1,
     isa     => sub {
                      croak "$_[0]: not a readable file"
                      if ( ! -T $_[0] || ! -r $_[0] );
                    },
-    default => sub { return "$FindBin::Bin/../config.yaml" },
+    default => sub { ( -e "$Bin/../config.yaml" ) ? "$Bin/../config.yaml"
+                                                  : "$Bin/config.yaml" 
+                   },
 );
 
 
