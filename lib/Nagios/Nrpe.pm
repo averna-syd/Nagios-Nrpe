@@ -13,6 +13,10 @@ use Log::Log4perl;
 use Log::Dispatch::Syslog;
 use English qw( -no_match_vars ) ;
 
+## no critic (return)
+## no critic (POD)
+## no critic (Quotes)
+
 =head1 NAME
 
 Nagios::Nrpe - Small framework for creating and using custom NAGIOS NRPE checks.
@@ -36,14 +40,7 @@ version 0.001
 
 our $VERSION = '0.001';
 
-## no critic (return)
-## no critic (Quotes)
-
 =head1 SYNOPSIS
-
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
 
     use Nagios::Nrpe;
 
@@ -508,16 +505,20 @@ has check_path =>
 );
 
 
+=head1 BUGS AND LIMITATIONS
+
+Report bugs & issues, please email the author.
+
 =head1 AUTHOR
 
 Sarah Fuller, C<< <sarah at averna.id.au> >>
 
 =head1 LICENSE AND COPYRIGHT
 
-This software is copyright (c) 2012 by Sarah Fuller.
-
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
+
+This software is copyright (c) 2012 by Sarah Fuller.
 
 =cut
 

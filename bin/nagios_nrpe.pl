@@ -12,9 +12,9 @@ use Nagios::Nrpe;
 use Getopt::Long;
 use Pod::Usage;
 
-our $VERSION = '0.001';
-
 ## no critic (POD)
+
+our $VERSION = '0.001';
 
 
 ## Setup default options.
@@ -41,10 +41,6 @@ GetOptions( $OPTIONS,
 
 sub generate_check
 {
-    # Usage: Calls Nagios::Nrpe to generate a new nagios nrpe check.
-    # Params: $options - Expecting hashref of command line params.
-    # Returns: Nothing.
-
     my $options = shift;
     my $nrpe    = Nagios::Nrpe->new(  check_name => $options->{name}, 
                                       check_path => $options->{path},
@@ -105,12 +101,12 @@ Nagios::Nrpe module.
 
 Sarah Fuller, C<< <sarah at averna.id.au> >>
 
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2012 by Sarah Fuller.
+=head1 LICENSE AND COPYRIGHT
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
+
+This software is copyright (c) 2012 by Sarah Fuller.
 
 =cut
 
