@@ -4,11 +4,11 @@
 
 Nagios::Nrpe - Small framework for creating & using custom NAGIOS NRPE checks.
 
-=head1 VERSION
+=head2 VERSION
 
 version 0.001
 
-=head1 DESCRIPTION
+=head2 DESCRIPTION
 
 The main objective of this module is to allow one to rapidly create and use
 new custom NAGIOS NRPE checks. This is done in two ways.
@@ -30,7 +30,7 @@ NRPE scripts. More effort to setup than value added? Wel...
     
     nagios_nrpe.pl -n example_check
 
-=head1 SYNOPSIS
+=head2 SYNOPSIS
 
     use Nagios::Nrpe;
     
@@ -105,11 +105,11 @@ NRPE scripts. More effort to setup than value added? Wel...
     
     $nrpe->exit_critical( 'I donno lol!' );
 
-=head1 AUTHOR
+=head2 AUTHOR
 
 Sarah Fuller <sarah@averna.id.au>
 
-=head1 COPYRIGHT AND LICENSE
+=head2 COPYRIGHT AND LICENSE
 
 This software is copyright (c) 2012 by Sarah Fuller.
 
