@@ -26,6 +26,10 @@ Finally, this over-engineered bit of code to solve a very small problem
 was dreamt up out of boredom and a desire to have consistent ad hoc NAGIOS 
 NRPE scripts. More effort to setup than value added? Wel...
 
+=head2 CREATE NEW NRPE CHECK
+    
+    nagios_nrpe.pl -n example_check
+
 =head1 SYNOPSIS
 
     use Nagios::Nrpe;
