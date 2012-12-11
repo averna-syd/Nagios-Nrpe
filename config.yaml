@@ -1,12 +1,15 @@
+# default option, enable or disable logging 
+log: 1
+
+# default option, enable or disable verbose
+verbose: 0
+
 # nagios exit codes
 nagios:
   ok: 0
   warning: 1
   critical: 2
   unknown: 3
-
-# enable or disable logging
-log: 1
 
 # logging settings
 log4perl:
@@ -31,6 +34,14 @@ log4perl:
     log4perl.appender.SYSLOG.ident     = Nagios::Nrpe
     log4perl.appender.SYSLOG.facility  = daemon
     log4perl.appender.SYSLOG.layout    = Log::Log4perl::Layout::SimpleLayout
+
+  # stdout logging, log to stdout only.
+  stdout: |
+    log4perl.rootLogger              = DEBUG, SCREEN
+    log4perl.appender.SCREEN         = Log::Log4perl::Appender::Screen
+    log4perl.appender.SCREEN.stderr  = 0
+    log4perl.appender.SCREEN.layout  = Log::Log4perl::Layout::PatternLayout
+    log4perl.appender.SCREEN.layout.ConversionPattern = %d %p %m %n
 
   # disabled logging (/dev/null), effectively killing all logging.
   disabled: |
@@ -62,7 +73,7 @@ template: |
 
   =head1 NAME
 
-  B<[% checkname %]l> - INSERT INFO HERE.
+  B<[% checkname %]> - INSERT INFO HERE.
 
   =head1 SYNOPSIS
 

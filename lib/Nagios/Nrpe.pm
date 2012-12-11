@@ -138,9 +138,11 @@ sub _load_logger
 
     my $self    = shift;
 
-    my $config  = ( $self->verbose ) ?
-                    $self->config->{log4perl}->{verbose}
-                  : ( ! $self->config->{log} ) ?
+    my $config  = ( $self->verbose && $self->log ) ?
+                   $self->config->{log4perl}->{verbose}
+                  : ( ! $self->log && $self->verbose ) ?
+                    $self->config->{log4perl}->{stdout}
+                  : ( ! $self->log ) ?
                     $self->config->{log4perl}->{disabled}
                   : $self->config->{log4perl}->{default};
 
@@ -162,7 +164,7 @@ sub error
     my $self = shift;
     chomp ( my $message = shift // 'Unknown error' );
 
-    $self->log->error( $message );
+    $self->logger->error( $message );
     $self->exit_message( $message );
     $self->exit_code( $self->critical );
     $self->_exit;
@@ -179,7 +181,7 @@ sub info
     my $self = shift;
     chomp ( my $message = shift // 'Unknown info' );
     
-    $self->log->info( $message );
+    $self->logger->info( $message );
 };
 
 
@@ -193,7 +195,7 @@ sub debug
     my $self = shift;
     chomp ( my $message = shift // 'Unknown debug' );
 
-    $self->log->debug( $message );
+    $self->logger->debug( $message );
 };
 
 
@@ -207,9 +209,9 @@ sub generate_check
     # Returns: nothing.
 
     my $self       = shift;
-    my $check_name = $self->check_name;
+    my $check_name = $self->check_name . '.pl';
     my $template   = $self->config->{template};
-    my $check_path = $self->check_path . '/' . $check_name . '.pl';
+    my $check_path = $self->check_path . '/' . $check_name;
 
     $template   =~ s/\[\%\s+checkname\s+\%\]/$check_name/xmsgi;
 
@@ -325,7 +327,7 @@ has config_file =>
 );
 
 
-has log =>
+has logger =>
 (
     is      => 'ro',
     lazy    => 1,
@@ -337,6 +339,17 @@ has log =>
 );
 
 
+has log =>
+(
+    is      => 'ro',
+    isa     => sub {
+                     croak "$_[0]: not a boolean"
+                     if ( $_[0] !~ m/ ^ (?:0|1) $/xms );
+                   },
+    default => sub { return $_[0]->config->{log} },
+);
+
+
 has verbose =>
 (
     is      => 'ro',
@@ -344,7 +357,7 @@ has verbose =>
                  croak "$_[0]: not a boolean" 
                  if ( $_[0] !~ m/ ^ (?:0|1) $/xms );
                },
-    default => sub { return 0 },
+    default => sub { return $_[0]->config->{verbose} },
 );
 
 
