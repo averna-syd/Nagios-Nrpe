@@ -16,7 +16,6 @@ use English qw( -no_match_vars ) ;
 our $VERSION = '0.001';
 
 ## no critic (return)
-## no critic (POD)
 ## no critic (Quotes)
 
 
@@ -490,6 +489,36 @@ NRPE scripts. More effort to setup than value added? Wel...
     # This call will exit the program with the desired exit code.
     
     $nrpe->exit_critical( 'I donno lol!' );
+
+=head1 SUBROUTINES/METHODS
+
+=head2 log
+
+    my $nrpe = Nagios::Nrpe->new( log => 1 );
+    
+When enabled all info, debug and error messages will log to
+syslog. Disabled by default.
+
+=cut
+
+=head2 verbose
+
+    my $nrpe = Nagios::Nrpe->new( verbose => 1 );
+
+All info, debug and error messages will print to stdout.
+If log is enabled will also log syslog. Disabled by default.
+
+=cut
+
+=head2 info
+
+    my $nrpe = Nagios::Nrpe->new();
+    $nrpe->info( 'Insert info message here.' );
+
+If verbose is on will print to stdout.
+If log is on will log to syslog.
+
+=cut
 
 =head1 AUTHOR
 
