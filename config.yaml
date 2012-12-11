@@ -1,5 +1,5 @@
 # default option, enable or disable logging 
-log: 1
+log: 0
 
 # default option, enable or disable verbose
 verbose: 0
