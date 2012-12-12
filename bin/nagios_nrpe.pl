@@ -5,9 +5,6 @@ use strict;
 use warnings;
 
 use Cwd;
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
-
 use Nagios::Nrpe;
 use Getopt::Long;
 use Pod::Usage;
