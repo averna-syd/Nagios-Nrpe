@@ -16,7 +16,7 @@ use English qw( -no_match_vars ) ;
 ## no critic (Quotes)
 ## no critic (ProhibitMagicNumbers)
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 
 sub exit_ok
@@ -239,7 +239,7 @@ use Getopt::Long;
 ## no critic (return)
 ## no critic (POD)
 
-our $VERSION  = '0.001';
+our $VERSION  = '0.002';
 
 ## Setup default options.
 my $OPTIONS = { verbose => 0, }; 
@@ -422,7 +422,7 @@ than value added? Well...
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 
