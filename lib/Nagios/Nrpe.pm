@@ -445,10 +445,10 @@ Returns: Exits with a nagios "warning" exit code.
 
     my $nrpe = Nagios::Nrpe->new();
     $nrpe->exit_ok( 'oh god, oh god, we're all going to die', 'stat1=123;stat2=321;' );
-           
+
 Usage: Pass human readable message and then (optionally) nagios stats.
 This call will exit the program with the desired exit code.
-               
+
 Returns: Exits with a nagios "critical" exit code.
 
 =head2 exit_unknown
@@ -480,7 +480,7 @@ Returns: hashref
 =head2 _load_logger
 
     INTERNAL USE ONLY.
- 
+
 Usage: Inits the log4perl logger.
 
 Returns: blessed ref
