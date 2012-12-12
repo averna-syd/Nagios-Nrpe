@@ -1,4 +1,4 @@
-use Test::More tests => 9;
+use Test::More tests => 12;
 
 BEGIN { use_ok( 'Nagios::Nrpe' ); }
 
@@ -36,5 +36,20 @@ is ($stdout, '0', "Default verbose");
 $stdout=qx{  perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new( 
  verbose => 1 )->verbose;" };
 is ($stdout, '1', "Enable verbose");
+
+$stdout=qx{  perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new( 
+ log => 1 )->info('test');" };
+$exit=$? >> 8;
+is ($exit, '0', "Info log");
+
+$stdout=qx{  perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new( 
+ log => 1 )->debug('test');" };
+$exit=$? >> 8;
+is ($exit, '0', "Debug log");
+
+$stdout=qx{  perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new( 
+ log => 1 )->error('test');" };
+$exit=$? >> 8;
+is ($exit, '2', "Error log");
 
 
