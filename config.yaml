@@ -84,7 +84,7 @@ template: |
   sub check
   {
       my $options = shift;
-      my $nrpe    = Nagios::Nrpe->new( verbose => $options->{verbose}, );
+      my $nrpe    = Nagios::Nrpe->new( verbose => $options->{verbose}, log => 0 );
 
       # INSERT YOUR CODE LOGIC HERE.
       # SEE: perldoc Nagios::Nrpe FOR MORE INFOMATION.
@@ -134,4 +134,6 @@ template: |
 
   =head1 COPYRIGHT AND LICENSE
   
+  INSERT HERE
+
   =cut
