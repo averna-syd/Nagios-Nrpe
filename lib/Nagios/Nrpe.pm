@@ -351,8 +351,9 @@ allows one to create new check scripts on the fly. Secondly, the module gives
 the user a number of necessary and/or commonly found features one might use in
 NRPE checks. Thus removing much of the repetitive boilerplate when creating
 new checks. Hopefully this is achieved in such a way as to avoid too many
-dependencies. Finally, this over-engineered desire to have consistent ad hoc
-NAGIOS NRPE scripts. More effort to setup than value added? Wel...
+dependencies. Finally, this over-engineered bit of code was dreamt up out of a
+desire to have consistent ad hoc NAGIOS NRPE scripts. More effort to setup
+than value added? Well...
 
 =head1 VERSION
 
