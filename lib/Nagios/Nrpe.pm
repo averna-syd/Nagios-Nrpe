@@ -235,6 +235,7 @@ use warnings;
   
 use Nagios::Nrpe;
 use Getopt::Long;
+use Pod::Usage;
 
 ## no critic (return)
 ## no critic (POD)
