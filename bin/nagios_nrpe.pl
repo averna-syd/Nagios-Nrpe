@@ -36,7 +36,7 @@ GetOptions( $OPTIONS,
 ( $OPTIONS->{help} )     ? exit pod2usage( 1 )
 : ( $OPTIONS->{man} )    ? exit pod2usage( -exitstatus => 0, -verbose => 2 )
 : ( ! $OPTIONS->{name} ) ? exit pod2usage( 1 )
-:                       generate_check( $OPTIONS );
+:                          generate_check( $OPTIONS );
 
 
 sub generate_check
