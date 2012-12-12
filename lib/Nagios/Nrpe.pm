@@ -6,7 +6,6 @@ use warnings;
 
 use Moo;
 use Carp;
-use FindBin qw($Bin);
 use autodie qw< :io >;
 use Log::Log4perl;
 use Log::Dispatch::Syslog;
