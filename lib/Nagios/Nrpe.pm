@@ -360,20 +360,63 @@ version 0.001
 
 =head1 SYNOPSIS
 
+    # Example check script for yum package updates.
     use Nagios::Nrpe;
 
-    my $nrpe = Nagios::Nrpe->new();
+    my $nrpe = Nagios::Nrpe->new( verbose => 0, log => 0, );
 
-    # log
-    # When enabled all info & debug messages will log to
-    # syslog. Disabled by default.
-    my $nrpe = Nagios::Nrpe->new( log => 1 ); # enable
-                       
-                            
-    # verbose
-    # All info & debug messages will print to stdout.
-    # If log is turned on will also log syslog. Disabled by default.
-    my $nrpe = Nagios::Nrpe->new( verbose => 1, ); # enable
+    $nrpe->info('Starting yum update notify check.');
+
+    open ( my $fh, '-|', '/usr/bin/yum check-update' ) || $nrpe->error('yum failed');
+
+        my $yum_info = { verbose => do { local $/; <$fh> } };
+
+    close ( $fh );
+
+    $nrpe->info('YUM: ' . $yum_info);
+
+    my $exit_code = ( $? >> 8 );
+
+    $nrpe->debug("YUM exit code: $exit_code");
+
+    ( $exit_code == 0 ) ? $nrpe->exit_ok('OK')
+    : ( $exit_code == 100 ) ? $nrpe->exit_warning('new updates available')
+    : $nrpe->exit_unknown('unknown status');
+
+
+=head1 OPTIONS
+
+=head2 verbose
+
+    my $nrpe = Nagios::Nrpe->new( verbose => 1 );
+
+When enabled all info & debug messages will print to stdout.
+If log is also turned on, will log syslog. Disabled by default.
+
+=head2 log
+
+    my $nrpe = Nagios::Nrpe->new( log => 1 );
+
+When enabled all info & debug messages will log to syslog.
+Disabled by default.
+
+=head2 check_name
+
+    my $nrpe = Nagios::Nrpe->new( check_name => 'example' );
+
+Used for check script generation. See nagios_nrpe.pl
+
+=head2 check_path
+
+    my $nrpe = Nagios::Nrpe->new( check_path => '/tmp' );
+
+Used for check script generation. See nagios_nrpe.pl
+
+=head2 config_file
+
+    my $nrpe = Nagios::Nrpe->new( check_path => '/var/tmp/config.yaml' );
+
+Loads yaml config file. Default loads internal module config file.
 
 =head1 SUBROUTINES/METHODS
 
