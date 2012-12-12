@@ -260,7 +260,7 @@ sub check
     my $nrpe    = Nagios::Nrpe->new( verbose => $options->{verbose}, log => 0 );
 
     # INSERT YOUR CODE LOGIC HERE.
-    # SEE: perldoc Nagios::Nrpe FOR MORE INFOMATIO
+    # SEE: perldoc Nagios::Nrpe FOR MORE INFOMATION
 
     $nrpe->exit_ok('OK');
 };
