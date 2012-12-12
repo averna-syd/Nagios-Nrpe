@@ -268,7 +268,7 @@ sub check
 
 __END__
 
-INSERT YOU POD HERE.
+INSERT YOUR POD HERE.
 
 EOF
 };
