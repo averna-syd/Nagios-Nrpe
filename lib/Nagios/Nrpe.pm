@@ -264,6 +264,11 @@ sub check
     $nrpe->exit_ok('OK');
 };
 
+
+__END__
+
+INSERT YOU POD HERE.
+
 EOF
 };
 
