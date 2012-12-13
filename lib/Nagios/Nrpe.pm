@@ -5,11 +5,12 @@ use strict;
 use warnings;
 
 use Moo;
+#use Mo qw< is default >; # Works with Mo.
 use Carp;
 use autodie qw< :io >;
 use Log::Log4perl;
 use Log::Dispatch::Syslog;
-use English qw( -no_match_vars ) ;
+use English qw< -no_match_vars >;
 
 ## no critic (return)
 ## no critic (POD)
@@ -412,7 +413,8 @@ __END__
 
 =head1 NAME
 
-Nagios::Nrpe - Small framework for creating and using custom NAGIOS NRPE checks.
+Nagios::Nrpe - Small module for creating and using custom NAGIOS client side
+NRPE checks on linux hosts.
 
 =head1 DESCRIPTION
 
