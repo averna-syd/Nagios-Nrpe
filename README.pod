@@ -50,7 +50,6 @@ version 0.003
 
     perl nagios_nrpe.pl -name foo
     + file: /path/to/script/foo.pl
-    + nrpe.cfg: command[check_foo]=/path/to/script/foo.pl
 
 Creates a skeleton script for the new check.
 The nagios_nrpe.pl script comes with this module.
