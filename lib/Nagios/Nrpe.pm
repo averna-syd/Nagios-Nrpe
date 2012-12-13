@@ -457,6 +457,14 @@ version 0.002
     : ( $exit_code == 100 ) ? $nrpe->exit_warning('new updates available')
     : $nrpe->exit_unknown('unknown status');
 
+=head2 Creating new NRPE check
+
+    perl nagios_nrpe.pl -name foo
+    + file: /path/to/script/foo.pl
+    + nrpe.cfg: command[check_foo]=/path/to/script/foo.pl
+
+Creates a skeleton script for the new check.
+The nagios_nrpe.pl script comes with this module.
 
 =head1 OPTIONS
 

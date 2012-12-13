@@ -47,7 +47,6 @@ sub generate_check
     my $check_path = $nrpe->generate_check;
 
     say '+ file: ' . $check_path;
-    say '+ nrpe.cfg: command[check_' . $nrpe->check_name . ']=' . $check_path;
 
     return;
 };
