@@ -34,7 +34,7 @@ sub exit_ok
 
 sub exit_warning 
 {
-    my $self = shift;
+    my $self    = shift;
     my $message = shift // 'Unknown';
     my $stats   = shift // '';
 
@@ -47,7 +47,7 @@ sub exit_warning
 
 sub exit_critical
 {
-    my $self = shift;
+    my $self    = shift;
     my $message = shift // 'Unknown';
     my $stats   = shift // '';
 
@@ -60,7 +60,7 @@ sub exit_critical
 
 sub exit_unknown
 {
-    my $self = shift;
+    my $self    = shift;
     my $message = shift // 'Unknown';
     my $stats   = shift // '';
 
