@@ -155,11 +155,10 @@ sub generate_check
     my $self       = shift;
     my $check_name = $self->check_name . '.pl';
     my $template   = $self->_template;
-    my $check_path = ( ( $self->check_path ) ? 
-                         $self->check_path 
-                         : getcwd ) 
-                         . '/' . $check_name;
+    my $check_path = $self->check_path;
 
+    $check_path =~ s/(:?\/)+$//xms;
+    $check_path .= '/' . $check_name;
     $template   =~ s/\[\%\s+check_name\s+\%\]/$check_name/xmsgi;
 
     croak "File $check_path already exists" if ( -e $check_path );
@@ -406,6 +405,7 @@ has check_path =>
     isa  => sub { croak "$_[0]: directory does not exist or can't write to"
                         . " directory" if ( ! -d $_[0] || ! -w $_[0] );
                 },
+    default => sub { return getcwd },
 );
 
 

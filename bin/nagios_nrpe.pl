@@ -4,6 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
+use Cwd;
 use Nagios::Nrpe;
 use Getopt::Long;
 use Pod::Usage;
@@ -14,12 +15,12 @@ our $VERSION = '0.003';
 
 
 ## Setup default options.
-my $OPTIONS = { verbose => 1 }; 
+my $OPTIONS = { verbose => 1, path => getcwd }; 
 
 # Accept options in from the command line.
 GetOptions( $OPTIONS, 
                       'name|n=s', 
-                      'path|p', 
+                      'path|p=s', 
                       'verbose|v', 
                       'help|h',
                       'man|m', 
