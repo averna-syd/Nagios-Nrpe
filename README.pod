@@ -2,8 +2,8 @@
 
 =head1 NAME
 
-Nagios::Nrpe - Small module for creating and using custom NAGIOS client side
-NRPE checks on linux hosts.
+Nagios::Nrpe - Small framework for creating and using custom NAGIOS NRPE
+checks.
 
 =head1 DESCRIPTION
 
@@ -19,66 +19,60 @@ than value added? Well...
 
 =head1 VERSION
 
-version 0.003
+version 0.001
 
 =head1 SYNOPSIS
 
-    # Example check script for yum package updates.
-    use Nagios::Nrpe;
+# Example check script for yum package updates.
+use Nagios::Nrpe;
 
-    my $nrpe = Nagios::Nrpe->new( verbose => 0, log => 0, );
+my $nrpe = Nagios::Nrpe->new( verbose => 0, log => 0, );
 
-    $nrpe->info('Starting yum update notify check.');
+$nrpe->info('Starting yum update notify check.');
 
-    open ( my $fh, '-|', '/usr/bin/yum check-update' ) || $nrpe->error('yum failed');
+open ( my $fh, '-|', '/usr/bin/yum check-update' ) || $nrpe->error('yum
+failed');
 
-        my $yum_info = { verbose => do { local $/; <$fh> } };
+my $yum_info = { verbose => do { local $/; <$fh> } };
 
-    close ( $fh );
+close ( $fh );
 
-    $nrpe->info('YUM: ' . $yum_info);
+$nrpe->info('YUM: ' . $yum_info);
 
-    my $exit_code = ( $? >> 8 );
+my $exit_code = ( $? >> 8 );
 
-    $nrpe->debug("YUM exit code: $exit_code");
+$nrpe->debug("YUM exit code: $exit_code");
 
-    ( $exit_code == 0 ) ? $nrpe->exit_ok('OK')
-    : ( $exit_code == 100 ) ? $nrpe->exit_warning('new updates available')
-    : $nrpe->exit_unknown('unknown status');
+( $exit_code == 0 ) ? $nrpe->exit_ok('OK')
+: ( $exit_code == 100 ) ? $nrpe->exit_warning('new updates available')
+: $nrpe->exit_unknown('unknown status');
 
-=head2 Creating a new NRPE check
-
-    perl nagios_nrpe.pl -name foo
-    + file: /path/to/script/foo.pl
-
-Creates a skeleton script for the new check.
-The nagios_nrpe.pl script comes with this module.
 
 =head1 OPTIONS
 
 =head2 verbose
 
-    my $nrpe = Nagios::Nrpe->new( verbose => 1 );
+my $nrpe = Nagios::Nrpe->new( verbose => 1 );
 
 When enabled all info & debug messages will print to stdout.
 If log is also turned on, will log syslog. Disabled by default.
 
 =head2 log
 
-    my $nrpe = Nagios::Nrpe->new( log => 1 );
+my $nrpe = Nagios::Nrpe->new( log => 1 );
 
 When enabled all info & debug messages will log to syslog.
 Disabled by default.
 
 =head2 check_name
 
-    my $nrpe = Nagios::Nrpe->new( check_name => 'example' );
+my $nrpe = Nagios::Nrpe->new( check_name => 'example' );
 
 Used for check script generation. See nagios_nrpe.pl
 
 =head2 check_path
 
-    my $nrpe = Nagios::Nrpe->new( check_path => '/tmp' );
+my $nrpe = Nagios::Nrpe->new( check_path => '/tmp' );
 
 Used for check script generation. See nagios_nrpe.pl
 
@@ -86,8 +80,8 @@ Used for check script generation. See nagios_nrpe.pl
 
 =head2 exit_ok
 
-    my $nrpe = Nagios::Nrpe->new();
-    $nrpe->exit_ok( 'Looks good', 'stat1=123;stat2=321;' );
+my $nrpe = Nagios::Nrpe->new();
+$nrpe->exit_ok( 'Looks good', 'stat1=123;stat2=321;' );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
 This call will exit the program with the desired exit code.
@@ -96,8 +90,8 @@ Returns: Exits with a nagios "ok" exit code.
 
 =head2 exit_warning
 
-    my $nrpe = Nagios::Nrpe->new();
-    $nrpe->exit_ok( 'Looks interesting', 'stat1=123;stat2=321;' );
+my $nrpe = Nagios::Nrpe->new();
+$nrpe->exit_ok( 'Looks interesting', 'stat1=123;stat2=321;' );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
 This call will exit the program with the desired exit code.
@@ -106,8 +100,9 @@ Returns: Exits with a nagios "warning" exit code.
 
 =head2 exit_critical
 
-    my $nrpe = Nagios::Nrpe->new();
-    $nrpe->exit_ok( 'oh god, oh god, we're all going to die', 'stat1=123;stat2=321;' );
+my $nrpe = Nagios::Nrpe->new();
+$nrpe->exit_ok( 'oh god, oh god, we're all going to die',
+'stat1=123;stat2=321;' );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
 This call will exit the program with the desired exit code.
@@ -116,18 +111,34 @@ Returns: Exits with a nagios "critical" exit code.
 
 =head2 exit_unknown
 
-    my $nrpe = Nagios::Nrpe->new();
-    $nrpe->exit_critical( 'I donno lol!' );
+my $nrpe = Nagios::Nrpe->new();
+$nrpe->exit_critical( 'I donno lol!' );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
 This call will exit the program with the desired exit code.
 
 Returns: Exits with a nagios "unknown" exit code.
 
+=head2 _exit
+
+INTERNAL USE ONLY.
+
+Usage: Creates a valid exit state for a NAGIOS NRPE check.
+
+Returns: exits program. Do not pass go, do not collect $200.
+
+=head2 _load_logger
+
+INTERNAL USE ONLY.
+
+Usage: Inits the log4perl logger.
+
+Returns: blessed ref
+
 =head2 error
 
-    my $nrpe = Nagios::Nrpe->new();
-    $nrpe->error( 'Not working, oh noes!' );
+my $nrpe = Nagios::Nrpe->new();
+$nrpe->error( 'Not working, oh noes!' );
 
 Usage: Error messaging.
 If verbose is on will print to stdout. If log is on will log to
@@ -138,82 +149,65 @@ Returns: exits program.
 
 =head2 info
 
-    my $nrpe = Nagios::Nrpe->new();
-    $nrpe->info( 'Insert info message here.' );
+my $nrpe = Nagios::Nrpe->new();
+$nrpe->info( 'Insert info message here.' );
 
 Usage: Info messaging.
 If verbose is on will print to stdout. If log is on will log to
-syslog. 
+syslog.
 
-Returns: Nothing.
+Returns: Nothing;
 
 =head2 debug
 
-    my $nrpe = Nagios::Nrpe->new();
-    $nrpe->debug( 'Insert debug message here.' );
+my $nrpe = Nagios::Nrpe->new();
+$nrpe->debug( 'Insert debug message here.' );
 
 Usage: Debug messaging.
 If verbose is on will print to stdout. If log is on will log to
-syslog. 
+syslog.
 
-Returns: Nothing.
+Returns: Nothing;
 
 =head2 generate_check
 
-    my $nrpe    = Nagios::Nrpe->new(  check_name => foo,
-                                      check_path => '/tmp',
-                                      verbose    => 1,
-                                   );
-    
-    my $check_path = $nrpe->generate_check;
+my $nrpe = Nagios::Nrpe->new( check_name => foo,
+check_path => '/tmp',
+verbose => 1,
+);
+my $check_path = $nrpe->generate_check;
 
 Usage: Generates a new NAGIOS NRPE check.
 
 Returns: Path to newly created file.
 
-=head2 _exit
-
-    INTERNAL USE ONLY.
-
-Usage: Creates a valid exit state for a NAGIOS NRPE check.
-
-Returns: exits program. Do not pass go, do not collect $200.
-
-=head2 _load_logger
-
-    INTERNAL USE ONLY.
-
-Usage: Inits the log4perl logger.
-
-Returns: blessed ref
-
 =head2 _log_default
 
-    INTERNAL USE ONLY.
+INTERNAL USE ONLY.
 
 Returns: log4perl config.
 
 =head2 _log_verbose
 
-    INTERNAL USE ONLY.
+INTERNAL USE ONLY.
 
 Returns: log4perl config.
 
 =head2 _log_stdout
 
-    INTERNAL USE ONLY.
+INTERNAL USE ONLY.
 
 Returns: log4perl config.
 
 =head2 _log_disabled
 
-    INTERNAL USE ONLY.
+INTERNAL USE ONLY.
 
 Returns: log4perl config.
 
 =head2 _template
 
-    INTERNAL USE ONLY.
+INTERNAL USE ONLY.
 
 Returns: perl script template for new nagios nrpe check.
 
