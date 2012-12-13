@@ -536,22 +536,6 @@ This call will exit the program with the desired exit code.
 
 Returns: Exits with a nagios "unknown" exit code.
 
-=head2 _exit
-
-    INTERNAL USE ONLY.
-
-Usage: Creates a valid exit state for a NAGIOS NRPE check.
-
-Returns: exits program. Do not pass go, do not collect $200.
-
-=head2 _load_logger
-
-    INTERNAL USE ONLY.
-
-Usage: Inits the log4perl logger.
-
-Returns: blessed ref
-
 =head2 error
 
     my $nrpe = Nagios::Nrpe->new();
@@ -573,7 +557,7 @@ Usage: Info messaging.
 If verbose is on will print to stdout. If log is on will log to
 syslog. 
 
-Returns: Nothing;
+Returns: Nothing.
 
 =head2 debug
 
@@ -584,7 +568,7 @@ Usage: Debug messaging.
 If verbose is on will print to stdout. If log is on will log to
 syslog. 
 
-Returns: Nothing;
+Returns: Nothing.
 
 =head2 generate_check
 
@@ -598,6 +582,22 @@ Returns: Nothing;
 Usage: Generates a new NAGIOS NRPE check.
 
 Returns: Path to newly created file.
+
+=head2 _exit
+
+    INTERNAL USE ONLY.
+
+Usage: Creates a valid exit state for a NAGIOS NRPE check.
+
+Returns: exits program. Do not pass go, do not collect $200.
+
+=head2 _load_logger
+
+    INTERNAL USE ONLY.
+
+Usage: Inits the log4perl logger.
+
+Returns: blessed ref
 
 =head2 _log_default
 
