@@ -4,21 +4,17 @@ use 5.010;
 use strict;
 use warnings;
 
-use Cwd;
 use Nagios::Nrpe;
 use Getopt::Long;
 use Pod::Usage;
 
 ## no critic (POD)
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 
 ## Setup default options.
-my $OPTIONS = { 
-             verbose => 1,
-             path    => getcwd
-           };
+my $OPTIONS = { verbose => 1 }; 
 
 # Accept options in from the command line.
 GetOptions( $OPTIONS, 
@@ -62,7 +58,7 @@ B<nagios_nrpe.pl> - Create custom NAGIOS NRPE client checks on the fly.
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 

@@ -5,7 +5,9 @@ use strict;
 use warnings;
 
 use Moo;
-#use Mo qw< is default >; # Works with Mo.
+# Works with Mo but one is deprived of attribute type checking.
+#use Mo qw< is default >;
+use Cwd;
 use Carp;
 use autodie qw< :io >;
 use Log::Log4perl;
@@ -17,7 +19,7 @@ use English qw< -no_match_vars >;
 ## no critic (Quotes)
 ## no critic (ProhibitMagicNumbers)
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 
 sub exit_ok
@@ -153,7 +155,10 @@ sub generate_check
     my $self       = shift;
     my $check_name = $self->check_name . '.pl';
     my $template   = $self->_template;
-    my $check_path = $self->check_path . '/' . $check_name;
+    my $check_path = ( ( $self->check_path ) ? 
+                         $self->check_path 
+                         : getcwd ) 
+                         . '/' . $check_name;
 
     $template   =~ s/\[\%\s+check_name\s+\%\]/$check_name/xmsgi;
 
@@ -241,7 +246,7 @@ use Pod::Usage;
 ## no critic (return)
 ## no critic (POD)
 
-our $VERSION  = '0.002';
+our $VERSION  = '0.003';
 
 ## Setup default options.
 my $OPTIONS = { verbose => 0, }; 
@@ -430,7 +435,7 @@ than value added? Well...
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 
