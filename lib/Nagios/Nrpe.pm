@@ -4,9 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
-use Moo;
-# Works with Mo but one is deprived of attribute type checking.
-#use Mo qw< is default >;
+use Moose;
 use Cwd;
 use Carp;
 use autodie qw< :io >;
@@ -19,7 +17,7 @@ use English qw< -no_match_vars >;
 ## no critic (Quotes)
 ## no critic (ProhibitMagicNumbers)
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 
 
 sub exit_ok
@@ -153,7 +151,10 @@ sub debug
 sub generate_check
 {
     my $self       = shift;
-    my $check_name = $self->check_name . '.pl';
+    my $check_name = ( $self->check_name =~ m/\.pl$/xms ) ?
+                       $self->check_name
+                     : $self->check_name . '.pl';
+
     my $template   = $self->_template;
     my $check_path = $self->check_path;
 
@@ -245,7 +246,7 @@ use Pod::Usage;
 ## no critic (return)
 ## no critic (POD)
 
-our $VERSION  = '0.003';
+our $VERSION  = '0.004';
 
 ## Setup default options.
 my $OPTIONS = { verbose => 0, }; 
@@ -282,10 +283,7 @@ EOF
 has ok =>
 (
     is      => 'ro',
-    isa     => sub {
-                     croak "$_[0]: nagios ok exit code is 0"
-                     if ( $_[0] ne '0' );
-                   },
+    isa     => 'Int',
     default => sub { return 0 },
 );
 
@@ -293,10 +291,7 @@ has ok =>
 has warning =>
 (
     is      => 'ro',
-    isa     => sub {
-                     croak "$_[0]: nagios warning exit code is 1"
-                     if ( $_[0] ne '1' );
-                   },
+    isa     => 'Int',
     default => sub { return 1 },
 );
 
@@ -304,10 +299,7 @@ has warning =>
 has critical =>
 (
     is      => 'ro',
-    isa     => sub {
-                     croak "$_[0]: nagios critical exit code is 2"
-                     if ( $_[0] ne '2' );
-                   },
+    isa     => 'Int',
     default => sub { return 2 },
 );
 
@@ -315,10 +307,7 @@ has critical =>
 has unknown =>
 (
     is      => 'ro',
-    isa     => sub {
-                     croak "$_[0]: nagios unknown exit code is 3"
-                     if ( $_[0] ne '3');
-                   },
+    isa     => 'Int',
     default => sub { return 3 },
 );
 
@@ -326,30 +315,21 @@ has unknown =>
 has exit_code =>
 (
     is  => 'rw',
-    isa => sub {
-                 croak "$_[0]: invalid nagios exit code"
-                 if ( $_[0] !~ m/ ^ (?:0|1|2|3) $ /xms );
-               },
+    isa => 'Int',
 );
 
 
 has exit_message =>
 (
     is  => 'rw',
-    isa => sub {
-                 croak "$_[0]: exit message is empty"
-                 if ( $_[0] !~ m/\w+/xms );
-               },
+    isa => 'Str',
 );
 
 
 has exit_stats =>
 (
     is  => 'rw',
-    isa => sub {
-                 croak "$_[0]: stats is undef"
-                 if ( ! defined $_[0] );
-               },
+    isa => 'Str',
 );
 
 
@@ -357,10 +337,7 @@ has logger =>
 (
     is      => 'ro',
     lazy    => 1,
-    isa     => sub {
-                     croak "$_[0]: not a log4perl class" 
-                     if ( ! $_[0]->isa('Log::Log4perl::Logger') );
-                   },
+    isa     => 'Object',
     default => \&_load_logger,
 );
 
@@ -368,10 +345,7 @@ has logger =>
 has log =>
 (
     is      => 'ro',
-    isa     => sub {
-                     croak "$_[0]: not a boolean"
-                     if ( $_[0] !~ m/ ^ (?:0|1) $/xms );
-                   },
+    isa     => 'Bool',
     default => sub { return 0 },
 );
 
@@ -379,10 +353,7 @@ has log =>
 has verbose =>
 (
     is      => 'ro',
-    isa     => sub {
-                 croak "$_[0]: not a boolean" 
-                 if ( $_[0] !~ m/ ^ (?:0|1) $/xms );
-               },
+    isa     => 'Bool',
     default => sub { return 0 },
 );
 
@@ -390,21 +361,15 @@ has verbose =>
 has check_name =>
 (
     is   => 'ro',
-    lazy => 1,
-    isa  => sub {
-                 croak "$_[0]: invalid check name"
-                 if ( $_[0] !~ m/ ^ \w+ $ /xms );
-               },
+    isa  => 'Str',
 );
 
 
 has check_path =>
 (
-    is   => 'ro',
-    lazy => 1,
-    isa  => sub { croak "$_[0]: directory does not exist or can't write to"
-                        . " directory" if ( ! -d $_[0] || ! -w $_[0] );
-                },
+    is      => 'ro',
+    lazy    => 1,
+    isa     => 'Str',
     default => sub { return getcwd },
 );
 
@@ -435,7 +400,7 @@ than value added? Well...
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 SYNOPSIS
 
