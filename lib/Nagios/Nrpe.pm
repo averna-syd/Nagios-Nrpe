@@ -24,7 +24,7 @@ sub exit_ok
 {
     my $self    = shift;
     my $message = shift // 'Unknown';
-    my $stats   = shift // '';
+    my $stats   = shift // $self->exit_stats;
 
     $self->exit_code( $self->ok );
     $self->exit_message( $message );
@@ -37,7 +37,7 @@ sub exit_warning
 {
     my $self    = shift;
     my $message = shift // 'Unknown';
-    my $stats   = shift // '';
+    my $stats   = shift // $self->exit_stats;
 
     $self->exit_code( $self->warning );
     $self->exit_message( $message );
@@ -50,7 +50,7 @@ sub exit_critical
 {
     my $self    = shift;
     my $message = shift // 'Unknown';
-    my $stats   = shift // '';
+    my $stats   = shift // $self->exit_stats;
 
     $self->exit_code( $self->critical );
     $self->exit_message( $message );
@@ -63,7 +63,7 @@ sub exit_unknown
 {
     my $self    = shift;
     my $message = shift // 'Unknown';
-    my $stats   = shift // '';
+    my $stats   = shift // $self->exit_stats;
 
     $self->exit_code( $self->unknown );
     $self->exit_message( $message );
@@ -86,13 +86,19 @@ sub _exit
             : 'Unknown'
           );
 
-    chomp ( my $stats   = ( defined $self->exit_stats ) 
-            ? $self->exit_stats 
-            : ''
-          ); 
+    my $stats_str;
 
+    if ( $self->exit_stats )
+    {
+        for my $key ( sort { $a cmp $b } keys %{ $self->exit_stats } )
+        {
+            $stats_str .= $key . '=' . $self->exit_stats->{ $key } . ';';
+        }
 
-    say ( ( $stats =~ m/\w+/xmsi ) ? "$message|$stats" : "$message" );
+        $stats_str =~ s/\R//xmsg if ( $stats_str );
+    }
+
+    say ( ( $stats_str ) ? "$message|$stats_str" : $message );
 
     exit ( $code );
 };
@@ -321,15 +327,17 @@ has exit_code =>
 
 has exit_message =>
 (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
+    default => sub { return 'Unknown' },
 );
 
 
 has exit_stats =>
 (
     is  => 'rw',
-    isa => 'Str',
+    isa => 'HashRef[Str]',
+    default => sub { return { } },
 );
 
 
