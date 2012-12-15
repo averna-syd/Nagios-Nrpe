@@ -1,4 +1,4 @@
-use Test::More tests => 14;
+use Test::More tests => 13;
 
 BEGIN { use_ok( 'Nagios::Nrpe' ); }
 
@@ -46,11 +46,6 @@ $stdout=qx{  perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new(
  log => 1 )->debug('test');" };
 $exit=$? >> 8;
 is ($exit, '0', "Debug log");
-
-$stdout=qx{  perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new( 
- log => 1 )->error('test');" };
-$exit=$? >> 8;
-is ($exit, '2', "Error log");
 
 $stdout=qx{ perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new(
  check_name => (int( rand(12151)) + 12151) . '_001_methods_test_nagios_nrpe' 

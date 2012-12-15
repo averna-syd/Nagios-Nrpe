@@ -86,6 +86,14 @@ sub _exit
             : 'Unknown'
           );
 
+    ( $code == $self->critical ) ?
+        $self->logger->error( 'About to exit with status CRITICAL: ' . $message )
+    : ( $code == $self->warning ) ?
+        $self->logger->warn( 'About to exit with status WARNING: ' . $message )
+    : ( $code == $self->ok ) ?
+        $self->logger->info( 'About to exit with status OK: ' . $message )
+    :   $self->logger->info( 'About to exit with status UNKNOWN: ' . $message );
+
     my $stats_str;
 
     if ( $self->exit_stats )
@@ -95,7 +103,10 @@ sub _exit
             $stats_str .= $key . '=' . $self->exit_stats->{ $key } . ';';
         }
 
-        $stats_str =~ s/\R//xmsg if ( $stats_str );
+        if ( $stats_str )
+        {
+            $stats_str =~ s/\R//xmsg;
+        }
     }
 
     say ( ( $stats_str ) ? "$message|$stats_str" : $message );
@@ -108,31 +119,11 @@ sub _load_logger
 {
     my $self    = shift;
 
-    my $config  = ( $self->verbose && $self->log ) ?
-                   $self->_log_verbose
-                  : ( ! $self->log && $self->verbose ) ?
-                    $self->_log_stdout
-                  : ( ! $self->log ) ?
-                    $self->_log_disabled
-                  : $self->_log_default;
-
-    Log::Log4perl->init( \$config );
+    Log::Log4perl->init( \$self->_log_config );
 
     my $logger = Log::Log4perl->get_logger();
 
     return $logger;
-};
-
-
-sub error
-{
-    my $self = shift;
-    chomp ( my $message = shift // 'Unknown error' );
-
-    $self->logger->error( $message );
-    $self->exit_message( $message );
-    $self->exit_code( $self->critical );
-    $self->_exit;
 };
 
 
@@ -181,58 +172,42 @@ sub generate_check
 };
 
 
-sub _log_default
+sub _log_config
 {
-    return <<'EOF';
-log4perl.rootLogger                = DEBUG, SYSLOG
-log4perl.appender.SYSLOG           = Log::Dispatch::Syslog
-log4perl.appender.SYSLOG.min_level = debug
-log4perl.appender.SYSLOG.ident     = Nagios::Nrpe
-log4perl.appender.SYSLOG.facility  = daemon
-log4perl.appender.SYSLOG.layout    = Log::Log4perl::Layout::SimpleLayout
+    my $self = shift;
+    chomp ( my $check_name = $self->check_name // 'Nagios-Nrpe' );
+    my $log_level = 
+                  ( $self->log_level =~ m/^(:?DEBUG|INFO)$/xmsi ) ?
+                    uc ( $self->log_level )
+                  :
+                    'INFO';
+
+    my $root_logger  = ( $self->verbose && $self->log ) ?
+                         "$log_level, SYSLOG, SCREEN"
+                       : ( ! $self->log && $self->verbose ) ?
+                         "$log_level, SCREEN"
+                       : ( ! $self->log ) ? 
+                         'OFF, SYSLOG'
+                       :
+                         "$log_level, SYSLOG";
+
+    my $log_config = <<'EOF';
+    log4perl.rootLogger                = [% root_logger %]
+    log4perl.appender.SCREEN           = Log::Log4perl::Appender::Screen
+    log4perl.appender.SCREEN.stderr    = 0
+    log4perl.appender.SCREEN.layout    = Log::Log4perl::Layout::PatternLayout
+    log4perl.appender.SCREEN.layout.ConversionPattern = %d %p %m %n
+    log4perl.appender.SYSLOG           = Log::Dispatch::Syslog
+    log4perl.appender.SYSLOG.min_level = debug
+    log4perl.appender.SYSLOG.ident     = [% check_name %]
+    log4perl.appender.SYSLOG.facility  = daemon
+    log4perl.appender.SYSLOG.layout    = Log::Log4perl::Layout::SimpleLayout
 EOF
-};
 
+    $log_config =~ s/\[\%\s+root_logger\s+\%\]/$root_logger/xmsgi;
+    $log_config =~ s/\[\%\s+check_name\s+\%\]/$check_name/xmsgi;
 
-sub _log_verbose
-{
-	return <<'EOF';
-log4perl.rootLogger                = DEBUG, SYSLOG, SCREEN
-log4perl.appender.SCREEN           = Log::Log4perl::Appender::Screen
-log4perl.appender.SCREEN.stderr    = 0
-log4perl.appender.SCREEN.layout    = Log::Log4perl::Layout::PatternLayout
-log4perl.appender.SCREEN.layout.ConversionPattern = %d %p %m %n
-log4perl.appender.SYSLOG           = Log::Dispatch::Syslog
-log4perl.appender.SYSLOG.min_level = debug
-log4perl.appender.SYSLOG.ident     = Nagios::Nrpe
-log4perl.appender.SYSLOG.facility  = daemon
-log4perl.appender.SYSLOG.layout    = Log::Log4perl::Layout::SimpleLayout
-EOF
-};
-
-
-sub _log_stdout
-{
-	return <<'EOF';
-log4perl.rootLogger              = DEBUG, SCREEN
-log4perl.appender.SCREEN         = Log::Log4perl::Appender::Screen
-log4perl.appender.SCREEN.stderr  = 0
-log4perl.appender.SCREEN.layout  = Log::Log4perl::Layout::PatternLayout
-log4perl.appender.SCREEN.layout.ConversionPattern = %d %p %m %n
-EOF
-};
-
-
-sub _log_disabled
-{
-	return <<'EOF';
-log4perl.rootLogger              = DEBUG, LOG1
-log4perl.appender.LOG1           = Log::Log4perl::Appender::File
-log4perl.appender.LOG1.filename  = /dev/null
-log4perl.appender.LOG1.mode      = append
-log4perl.appender.LOG1.layout    = Log::Log4perl::Layout::PatternLayout
-log4perl.appender.LOG1.layout.ConversionPattern = %d %p %m %n
-EOF
+    return $log_config;
 };
 
 
@@ -358,6 +333,14 @@ has log =>
 );
 
 
+has log_level =>
+(
+    is      => 'rw',
+    isa     => 'Str',
+    default => sub { return 'INFO' },
+);
+
+
 has verbose =>
 (
     is      => 'ro',
@@ -415,11 +398,13 @@ version 0.004
     # Example check script for yum package updates.
     use Nagios::Nrpe;
 
-    my $nrpe = Nagios::Nrpe->new( verbose => 0, log => 0, );
+    my $nrpe = Nagios::Nrpe->new( verbose   => 1,
+                                  log       => 1,
+                                  log_level => 'debug', );
 
     $nrpe->info('Starting yum update notify check.');
 
-    open ( my $fh, '-|', '/usr/bin/yum check-update' ) || $nrpe->error('yum failed');
+    open ( my $fh, '-|', '/usr/bin/yum check-update' ) || $nrpe->exit_warning('yum failed');
 
         my $yum_info = { verbose => do { local $/; <$fh> } };
 
