@@ -198,7 +198,7 @@ sub _log_config
                          "$log_level, SYSLOG, SCREEN"
                        : ( ! $self->log && $self->verbose ) ?
                          'TRACE, SCREEN'
-                       : ( $self->log && $self->verbose ) ? 
+                       : ( $self->log && $self->verbose ) ?
                          "$log_level SYSLOG, SCREEN"
                        :
                          "$log_level, SYSLOG";
