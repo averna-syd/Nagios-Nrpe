@@ -12,6 +12,7 @@ use autodie qw< :io >;
 use Log::Log4perl;
 use Log::Dispatch::Syslog;
 use English qw< -no_match_vars >;
+use Data::Dumper;
 
 ## no critic (return)
 ## no critic (POD)
@@ -88,12 +89,12 @@ sub _exit
           );
 
     ( $code == $self->critical ) ?
-        $self->logger->error( 'About to exit with status CRITICAL: ' . $message )
+      $self->logger->error( 'Exit with status CRITICAL: ' . $message )
     : ( $code == $self->warning ) ?
-        $self->logger->warn( 'About to exit with status WARNING: ' . $message )
+      $self->logger->warn( 'Exit with status WARNING: ' . $message )
     : ( $code == $self->ok ) ?
-        $self->logger->info( 'About to exit with status OK: ' . $message )
-    :   $self->logger->info( 'About to exit with status UNKNOWN: ' . $message );
+      $self->logger->info( 'Exit with status OK: ' . $message )
+    : $self->logger->info( 'Exit with status UNKNOWN: ' . $message );
 
     my $stats_str;
 
@@ -146,6 +147,15 @@ sub debug
 };
 
 
+sub trace
+{
+    my $self = shift;
+    chomp ( my $message = shift // 'Unknown trace' );
+
+    $self->logger->trace( $message );
+};
+
+
 sub generate_check
 {
     my $self       = shift;
@@ -177,18 +187,20 @@ sub _log_config
 {
     my $self = shift;
     chomp ( my $check_name = $self->check_name // 'Nagios-Nrpe' );
-    my $log_level = 
-                  ( $self->log_level =~ m/^(:?DEBUG|INFO)$/xmsi ) ?
-                    uc ( $self->log_level )
-                  :
-                    'INFO';
+    my $log_level = ( $self->log == 1 ) ?
+                      'INFO' 
+                    : ( $self->log == 2 ) ?
+                      'DEBUG'
+                    : ( $self->log == 3 ) ?
+                      'TRACE'
+                    : 'OFF';
 
     my $root_logger  = ( $self->verbose && $self->log ) ?
                          "$log_level, SYSLOG, SCREEN"
                        : ( ! $self->log && $self->verbose ) ?
-                         "$log_level, SCREEN"
-                       : ( ! $self->log ) ? 
-                         'OFF, SYSLOG'
+                         'TRACE, SCREEN'
+                       : ( $self->log && $self->verbose ) ? 
+                         "$log_level SYSLOG, SCREEN"
                        :
                          "$log_level, SYSLOG";
 
@@ -228,8 +240,6 @@ use Pod::Usage;
 ## no critic (return)
 ## no critic (POD)
 
-our $VERSION  = '0.004';
-
 ## Setup default options.
 my $OPTIONS = { verbose => 0, }; 
 
@@ -245,18 +255,24 @@ GetOptions( $OPTIONS, 'verbose|v', 'help|h', 'man|m', );
 sub check
 {
     my $options = shift;
-    my $nrpe    = Nagios::Nrpe->new( verbose => $options->{verbose}, log => 0 );
+    my $nrpe    = Nagios::Nrpe->new( # Set log level (0,1,2,3)
+                                     log        => 0,
+                                     # Set name of check for logging
+                                     check_name => $0,
+                                     # Print logging to stdout
+                                     verbose    => $options->{verbose},
+                                   );
 
     # INSERT YOUR CODE LOGIC HERE.
-    # SEE: perldoc Nagios::Nrpe FOR MORE INFOMATION
+    # SEE: "perldoc Nagios::Nrpe" FOR MORE INFOMATION
 
-    $nrpe->exit_ok('OK');
+    $nrpe->exit_ok( 'OK' );
 };
 
 
 __END__
 
-INSERT YOUR POD HERE.
+INSERT YOUR DOCUMENTATION (POD) HERE.
 
 EOF
 };
@@ -329,16 +345,8 @@ has logger =>
 has log =>
 (
     is      => 'ro',
-    isa     => 'Bool',
+    isa     => 'Int',
     default => sub { return 0 },
-);
-
-
-has log_level =>
-(
-    is      => 'rw',
-    isa     => 'Str',
-    default => sub { return 'INFO' },
 );
 
 
@@ -388,7 +396,7 @@ NRPE checks. Thus removing much of the repetitive boilerplate when creating
 new checks. Hopefully this is achieved in such a way as to avoid too many
 dependencies. Finally, this over-engineered bit of code was dreamt up out of a
 desire to have consistent ad hoc NAGIOS NRPE scripts. More effort to setup
-than value added? Well...
+than value added? Well... http://xkcd.com/974/
 
 =head1 VERSION
 
@@ -400,12 +408,12 @@ version 0.004
     use Nagios::Nrpe;
 
     my $nrpe = Nagios::Nrpe->new( verbose   => 1,
-                                  log       => 1,
-                                  log_level => 'debug', );
+                                  log       => 0, );
 
     $nrpe->info('Starting yum update notify check.');
 
-    open ( my $fh, '-|', '/usr/bin/yum check-update' ) || $nrpe->exit_warning('yum failed');
+    open ( my $fh, '-|', '/usr/bin/yum check-update' )
+    || $nrpe->exit_warning('yum command failed');
 
         my $yum_info = { verbose => do { local $/; <$fh> } };
 
@@ -435,14 +443,18 @@ The nagios_nrpe.pl script comes with this module.
 
     my $nrpe = Nagios::Nrpe->new( verbose => 1 );
 
-When enabled all info & debug messages will print to stdout.
-If log is also turned on, will log syslog. Disabled by default.
+When enabled will print info, debug and trace log messages to stdout.
+If log is also enabled, will only print out messages enabled by
+the log setting. If log is disabled, will print all log levels to 
+stdout.
+Disabled by default.
 
 =head2 log
 
     my $nrpe = Nagios::Nrpe->new( log => 1 );
 
-When enabled all info & debug messages will log to syslog.
+log levels: 1=info, 2=debug, 3=trace.
+When enabled at the appropriate level, will log to syslog.
 Disabled by default.
 
 =head2 check_name
@@ -450,6 +462,8 @@ Disabled by default.
     my $nrpe = Nagios::Nrpe->new( check_name => 'example' );
 
 Used for check script generation. See nagios_nrpe.pl
+Also, when used within a NAGIOS NRPE check script this option
+is used to set the script name for log messages.
 
 =head2 check_path
 
@@ -462,9 +476,10 @@ Used for check script generation. See nagios_nrpe.pl
 =head2 exit_ok
 
     my $nrpe = Nagios::Nrpe->new();
-    $nrpe->exit_ok( 'Looks good', 'stat1=123;stat2=321;' );
+    $nrpe->exit_ok( 'Looks good', \%stats );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
+The stats param must be a hashref. If log is enabled, will log the exit call.
 This call will exit the program with the desired exit code.
 
 Returns: Exits with a nagios "ok" exit code.
@@ -472,9 +487,10 @@ Returns: Exits with a nagios "ok" exit code.
 =head2 exit_warning
 
     my $nrpe = Nagios::Nrpe->new();
-    $nrpe->exit_ok( 'Looks interesting', 'stat1=123;stat2=321;' );
+    $nrpe->exit_ok( 'Looks interesting', \%stats );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
+The stats param must be a hashref. If log is enabled, will log the exit call.
 This call will exit the program with the desired exit code.
 
 Returns: Exits with a nagios "warning" exit code.
@@ -482,9 +498,10 @@ Returns: Exits with a nagios "warning" exit code.
 =head2 exit_critical
 
     my $nrpe = Nagios::Nrpe->new();
-    $nrpe->exit_ok( 'oh god, oh god, we're all going to die', 'stat1=123;stat2=321;' );
+    $nrpe->exit_ok( 'oh god, oh god, we're all going to die', \%stats );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
+The stats param must be a hashref. If log is enabled, will log the exit call.
 This call will exit the program with the desired exit code.
 
 Returns: Exits with a nagios "critical" exit code.
@@ -495,29 +512,18 @@ Returns: Exits with a nagios "critical" exit code.
     $nrpe->exit_critical( 'I donno lol!' );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
+The stats param must be a hashref. If log is enabled, will log the exit call.
 This call will exit the program with the desired exit code.
 
 Returns: Exits with a nagios "unknown" exit code.
-
-=head2 error
-
-    my $nrpe = Nagios::Nrpe->new();
-    $nrpe->error( 'Not working, oh noes!' );
-
-Usage: Error messaging.
-If verbose is on will print to stdout. If log is on will log to
-syslog. Please note, an error message call will cause the program to exit with
-a critical nagios exit code.
-
-Returns: exits program.
 
 =head2 info
 
     my $nrpe = Nagios::Nrpe->new();
     $nrpe->info( 'Insert info message here.' );
 
-Usage: Info messaging.
-If verbose is on will print to stdout. If log is on will log to
+Usage: Info logging.
+If verbose is on will print to stdout. If log is set (1, 2 or 3) will log to
 syslog. 
 
 Returns: Nothing.
@@ -527,9 +533,19 @@ Returns: Nothing.
     my $nrpe = Nagios::Nrpe->new();
     $nrpe->debug( 'Insert debug message here.' );
 
-Usage: Debug messaging.
-If verbose is on will print to stdout. If log is on will log to
-syslog. 
+Usage: Debug logging.
+If verbose is on will print to stdout. If log is set (2 or 3) will log to
+syslog.
+
+Returns: Nothing.
+
+=head2 trace
+
+    my $nrpe = Nagios::Nrpe->new();
+    $nrpe->trace( 'Insert trace message here.' );
+
+Usage: Trace logging.
+If verbose is on will print to stdout. If log is set (3) will log to syslog.
 
 Returns: Nothing.
 
@@ -537,7 +553,7 @@ Returns: Nothing.
 
     my $nrpe    = Nagios::Nrpe->new(  check_name => foo,
                                       check_path => '/tmp',
-                                      verbose    => 1,
+                                      verbose    => 0,
                                    );
     
     my $check_path = $nrpe->generate_check;
@@ -551,8 +567,9 @@ Returns: Path to newly created file.
     INTERNAL USE ONLY.
 
 Usage: Creates a valid exit state for a NAGIOS NRPE check.
+If log is enabled, will log exit message.
 
-Returns: exits program. Do not pass go, do not collect $200.
+Returns: Exits the program. Do not pass go, do not collect $200.
 
 =head2 _load_logger
 
@@ -561,30 +578,6 @@ Returns: exits program. Do not pass go, do not collect $200.
 Usage: Inits the log4perl logger.
 
 Returns: blessed ref
-
-=head2 _log_default
-
-    INTERNAL USE ONLY.
-
-Returns: log4perl config.
-
-=head2 _log_verbose
-
-    INTERNAL USE ONLY.
-
-Returns: log4perl config.
-
-=head2 _log_stdout
-
-    INTERNAL USE ONLY.
-
-Returns: log4perl config.
-
-=head2 _log_disabled
-
-    INTERNAL USE ONLY.
-
-Returns: log4perl config.
 
 =head2 _template
 
