@@ -418,7 +418,7 @@ version 0.006
     open ( my $fh, '-|', '/usr/bin/yum check-update' )
     || $nrpe->exit_warning('yum command failed');
 
-        my $yum_info = { verbose => do { local $/; <$fh> } };
+        my $yum_info = do { local $/; <$fh> };
 
     close ( $fh );
 
