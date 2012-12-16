@@ -4,8 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
-#use Moose;
-use Mouse;
+use Moose;
 use Cwd;
 use Carp;
 use autodie qw< :io >;
