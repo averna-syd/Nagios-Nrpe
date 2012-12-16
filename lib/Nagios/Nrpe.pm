@@ -18,7 +18,7 @@ use Data::Dumper;
 ## no critic (Quotes)
 ## no critic (ProhibitMagicNumbers)
 
-our $VERSION = '0.006';
+our $VERSION = '0.008';
 
 
 sub exit_ok
@@ -403,7 +403,7 @@ than value added? Well...
 
 =head1 VERSION
 
-version 0.006
+version 0.008
 
 =head1 SYNOPSIS
 
