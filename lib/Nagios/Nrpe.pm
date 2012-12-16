@@ -18,7 +18,7 @@ use Data::Dumper;
 ## no critic (Quotes)
 ## no critic (ProhibitMagicNumbers)
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 
 
 sub exit_ok
@@ -88,12 +88,12 @@ sub _exit
           );
 
     ( $code == $self->critical ) ?
-      $self->logger->error( 'Exit with status CRITICAL: ' . $message )
+      $self->log_error( 'Exit with status CRITICAL: ' . $message )
     : ( $code == $self->warning ) ?
-      $self->logger->warn( 'Exit with status WARNING: ' . $message )
+      $self->log_warn( 'Exit with status WARNING: ' . $message )
     : ( $code == $self->ok ) ?
-      $self->info( 'Exit with status OK: ' . $message )
-    : $self->logger->warn( 'Exit with status UNKNOWN: ' . $message );
+      $self->log_info( 'Exit with status OK: ' . $message )
+    : $self->log_warn( 'Exit with status UNKNOWN: ' . $message );
 
     my $stats_str;
 
@@ -128,7 +128,25 @@ sub _load_logger
 };
 
 
-sub info
+sub log_error
+{
+    my $self = shift;
+    chomp ( my $message = shift // 'Unknown error' );
+
+    $self->logger->error( $message );
+};
+
+
+sub log_warn
+{
+    my $self = shift;
+    chomp ( my $message = shift // 'Unknown warn' );
+
+    $self->logger->warn( $message );
+};
+
+
+sub log_info
 {
     my $self = shift;
     chomp ( my $message = shift // 'Unknown info' );
@@ -137,21 +155,12 @@ sub info
 };
 
 
-sub debug
+sub log_debug
 {
     my $self = shift;
     chomp ( my $message = shift // 'Unknown debug' );
 
     $self->logger->debug( $message );
-};
-
-
-sub trace
-{
-    my $self = shift;
-    chomp ( my $message = shift // 'Unknown trace' );
-
-    $self->logger->trace( $message );
 };
 
 
@@ -186,22 +195,17 @@ sub _log_config
 {
     my $self = shift;
     chomp ( my $check_name = $self->check_name // 'Nagios-Nrpe' );
-    my $log_level = ( $self->log == 1 ) ?
-                      'INFO' 
-                    : ( $self->log == 2 ) ?
-                      'DEBUG'
-                    : ( $self->log == 3 ) ?
-                      'TRACE'
-                    : 'OFF';
 
-    my $root_logger  = ( $self->verbose && $self->log ) ?
+    my $log_level = ( $self->log =~ m/^(:?off|error|warn|info|debug)$/xmsi ) ?
+                      uc ( $self->log )
+                    : croak 'Log level not supported, options are: '
+                            . 'off, error, warn, info & debug';
+
+    my $root_logger  = ( $log_level ne 'OFF' && $self->verbose ) ?
                          "$log_level, SYSLOG, SCREEN"
-                       : ( ! $self->log && $self->verbose ) ?
-                         'TRACE, SCREEN'
-                       : ( $self->log && $self->verbose ) ?
-                         "$log_level SYSLOG, SCREEN"
-                       :
-                         "$log_level, SYSLOG";
+                       : ( $log_level eq 'OFF' && $self->verbose ) ?
+                         'ALL, SCREEN'
+                       : "$log_level, SYSLOG";
 
     my $log_config = <<'EOF';
     log4perl.rootLogger                = [% root_logger %]
@@ -254,8 +258,8 @@ GetOptions( $OPTIONS, 'verbose|v', 'help|h', 'man|m', );
 sub check
 {
     my $options = shift;
-    my $nrpe    = Nagios::Nrpe->new( # Set log level (0,1,2,3)
-                                     log        => 0,
+    my $nrpe    = Nagios::Nrpe->new( # log level (off,error,warn,info,debug)
+                                     log        => 'off',
                                      # Set name of check for logging
                                      check_name => $0,
                                      # Print logging to stdout
@@ -311,8 +315,9 @@ has unknown =>
 
 has exit_code =>
 (
-    is  => 'rw',
-    isa => 'Int',
+    is      => 'rw',
+    isa     => 'Int',
+    default => sub { return 3 },
 );
 
 
@@ -326,8 +331,8 @@ has exit_message =>
 
 has exit_stats =>
 (
-    is  => 'rw',
-    isa => 'HashRef[Str]',
+    is      => 'rw',
+    isa     => 'HashRef[Str]',
     default => sub { return { } },
 );
 
@@ -344,8 +349,8 @@ has logger =>
 has log =>
 (
     is      => 'ro',
-    isa     => 'Int',
-    default => sub { return 0 },
+    isa     => 'Str',
+    default => sub { return 'off' },
 );
 
 
@@ -399,7 +404,7 @@ than value added? Well...
 
 =head1 VERSION
 
-version 0.004
+version 0.005
 
 =head1 SYNOPSIS
 
@@ -407,9 +412,9 @@ version 0.004
     use Nagios::Nrpe;
 
     my $nrpe = Nagios::Nrpe->new( verbose   => 1,
-                                  log       => 0, );
+                                  log       => 'off', );
 
-    $nrpe->info('Starting yum update notify check.');
+    $nrpe->log_info('Starting yum update notify check.');
 
     open ( my $fh, '-|', '/usr/bin/yum check-update' )
     || $nrpe->exit_warning('yum command failed');
@@ -418,11 +423,11 @@ version 0.004
 
     close ( $fh );
 
-    $nrpe->info('YUM: ' . $yum_info);
+    $nrpe->log_info('YUM: ' . $yum_info);
 
     my $exit_code = ( $? >> 8 );
 
-    $nrpe->debug("YUM exit code: $exit_code");
+    $nrpe->log_debug("YUM exit code: $exit_code");
 
     ( $exit_code == 0 ) ? $nrpe->exit_ok('OK')
     : ( $exit_code == 100 ) ? $nrpe->exit_warning('new updates available')
@@ -442,7 +447,7 @@ The nagios_nrpe.pl script comes with this module.
 
     my $nrpe = Nagios::Nrpe->new( verbose => 1 );
 
-When enabled will print info, debug and trace log messages to stdout.
+When enabled will print log messages to stdout.
 If log is also enabled, will only print out messages enabled by
 the log setting. If log is disabled, will print all log levels to 
 stdout.
@@ -450,9 +455,9 @@ Disabled by default.
 
 =head2 log
 
-    my $nrpe = Nagios::Nrpe->new( log => 1 );
+    my $nrpe = Nagios::Nrpe->new( log => 'debug' );
 
-log levels: 1=info, 2=debug, 3=trace.
+log levels: off, error, warn, info, debug.
 When enabled at the appropriate level, will log to syslog.
 Disabled by default.
 
@@ -478,7 +483,8 @@ Used for check script generation. See nagios_nrpe.pl
     $nrpe->exit_ok( 'Looks good', \%stats );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
-The stats param must be a hashref. If log is enabled, will log the exit call.
+The stats param must be a hashref. If log is enabled, will log the exit call
+at the INFO log level.
 This call will exit the program with the desired exit code.
 
 Returns: Exits with a nagios "ok" exit code.
@@ -486,10 +492,11 @@ Returns: Exits with a nagios "ok" exit code.
 =head2 exit_warning
 
     my $nrpe = Nagios::Nrpe->new();
-    $nrpe->exit_ok( 'Looks interesting', \%stats );
+    $nrpe->exit_warning( 'This landing is gonna get pretty interesting', \%stats );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
-The stats param must be a hashref. If log is enabled, will log the exit call.
+The stats param must be a hashref. If log is enabled, will log the exit call
+at the WARN log level.
 This call will exit the program with the desired exit code.
 
 Returns: Exits with a nagios "warning" exit code.
@@ -497,10 +504,11 @@ Returns: Exits with a nagios "warning" exit code.
 =head2 exit_critical
 
     my $nrpe = Nagios::Nrpe->new();
-    $nrpe->exit_ok( 'oh god, oh god, we're all going to die', \%stats );
+    $nrpe->exit_critical( 'oh god, oh god, we're all going to die', \%stats );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
-The stats param must be a hashref. If log is enabled, will log the exit call.
+The stats param must be a hashref. If log is enabled, will log the exit call
+at the ERROR log level.
 This call will exit the program with the desired exit code.
 
 Returns: Exits with a nagios "critical" exit code.
@@ -508,43 +516,62 @@ Returns: Exits with a nagios "critical" exit code.
 =head2 exit_unknown
 
     my $nrpe = Nagios::Nrpe->new();
-    $nrpe->exit_critical( 'I donno lol!' );
+    $nrpe->exit_unknown( 'I donno lol!' );
 
 Usage: Pass human readable message and then (optionally) nagios stats.
-The stats param must be a hashref. If log is enabled, will log the exit call.
+The stats param must be a hashref. If log is enabled, will log the exit call
+at the WARN log level.
 This call will exit the program with the desired exit code.
 
 Returns: Exits with a nagios "unknown" exit code.
 
-=head2 info
+=head2 log_error
 
     my $nrpe = Nagios::Nrpe->new();
-    $nrpe->info( 'Insert info message here.' );
+    $nrpe->log_error( 'Insert error message here.' );
+
+Usage: Error logging.
+If verbose is on will print to stdout. If log is set to "error" or higher
+will log to syslog.
+
+NOTE: This will not exit your program. If you wish to log an error and exit
+your program see "exit_critical" or "exit_warning" instead.
+
+Returns: Nothing.
+
+=head2 log_warn
+
+    my $nrpe = Nagios::Nrpe->new();
+    $nrpe->log_warn( 'Insert warn message here.' );
+
+Usage: Warn logging.
+If verbose is on will print to stdout. If log is set to "warn" or higher
+will log to syslog.
+
+TE: This will not exit your program. If you wish to log an error and exit
+your program see "exit_critical" or "exit_warning" instead.
+
+Returns: Nothing.
+
+=head2 log_info
+
+    my $nrpe = Nagios::Nrpe->new();
+    $nrpe->log_info( 'Insert info message here.' );
 
 Usage: Info logging.
-If verbose is on will print to stdout. If log is set (1, 2 or 3) will log to
-syslog. 
+If verbose is on will print to stdout. If log is set to "info" or higher
+will log to syslog.
 
 Returns: Nothing.
 
-=head2 debug
+=head2 log_debug
 
     my $nrpe = Nagios::Nrpe->new();
-    $nrpe->debug( 'Insert debug message here.' );
+    $nrpe->log_debug( 'Insert debug message here.' );
 
 Usage: Debug logging.
-If verbose is on will print to stdout. If log is set (2 or 3) will log to
+If verbose is on will print to stdout. If log is set to "debug" will log to
 syslog.
-
-Returns: Nothing.
-
-=head2 trace
-
-    my $nrpe = Nagios::Nrpe->new();
-    $nrpe->trace( 'Insert trace message here.' );
-
-Usage: Trace logging.
-If verbose is on will print to stdout. If log is set (3) will log to syslog.
 
 Returns: Nothing.
 
