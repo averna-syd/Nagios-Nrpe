@@ -387,7 +387,7 @@ __END__
 
 =head1 NAME
 
-Nagios::Nrpe
+Nagios::Nrpe - Small module for creating & using NAGIOS NRPE checks.
 
 =head1 DESCRIPTION
 
