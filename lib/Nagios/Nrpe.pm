@@ -387,8 +387,7 @@ __END__
 
 =head1 NAME
 
-Nagios::Nrpe - Small module for creating and using custom NAGIOS client side
-NRPE checks on linux hosts.
+Nagios::Nrpe
 
 =head1 DESCRIPTION
 
