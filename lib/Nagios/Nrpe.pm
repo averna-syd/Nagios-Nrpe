@@ -92,8 +92,8 @@ sub _exit
     : ( $code == $self->warning ) ?
       $self->logger->warn( 'Exit with status WARNING: ' . $message )
     : ( $code == $self->ok ) ?
-      $self->logger->info( 'Exit with status OK: ' . $message )
-    : $self->logger->info( 'Exit with status UNKNOWN: ' . $message );
+      $self->info( 'Exit with status OK: ' . $message )
+    : $self->logger->warn( 'Exit with status UNKNOWN: ' . $message );
 
     my $stats_str;
 
@@ -132,7 +132,7 @@ sub info
 {
     my $self = shift;
     chomp ( my $message = shift // 'Unknown info' );
-    
+
     $self->logger->info( $message );
 };
 
@@ -395,7 +395,7 @@ NRPE checks. Thus removing much of the repetitive boilerplate when creating
 new checks. Hopefully this is achieved in such a way as to avoid too many
 dependencies. Finally, this over-engineered bit of code was dreamt up out of a
 desire to have consistent ad hoc NAGIOS NRPE scripts. More effort to setup
-than value added? Well... http://xkcd.com/974/
+than value added? Well...
 
 =head1 VERSION
 
