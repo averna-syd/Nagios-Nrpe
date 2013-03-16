@@ -623,6 +623,6 @@ Sarah Fuller, C<< <sarah at averna.id.au> >>
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
-This software is copyright (c) 2012 by Sarah Fuller.
+This software is copyright (c) 2013 by Sarah Fuller.
 
 =cut

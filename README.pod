@@ -1,0 +1,15 @@
+=pod
+
+=head1 Nagios::Nrpe
+
+A small framework for custom Nagios NRPE client side checks.
+This code is incomplete, mostly just me playing around.
+
+=head1 COPYRIGHT & LICENSE
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+This software is copyright (c) 2013 by Sarah Fuller.
+
+=cut
